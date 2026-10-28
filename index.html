@@ -843,36 +843,58 @@
     if (event.key === "Escape") closeModal();
   });
 
-  form.addEventListener("submit", function(event) {
-    event.preventDefault();
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
 
-    const title = document.getElementById("titleInput").value.trim();
-    const description = document.getElementById("descriptionInput").value.trim();
-    const genre = document.getElementById("genreInput").value;
+  const title = document.getElementById("titleInput").value.trim();
+  const description = document.getElementById("descriptionInput").value.trim();
+  const genre = document.getElementById("genreInput").value;
 
-    if (!title || !description) return;
+  if (!title || !description) return;
 
-    const manga = { title, description, genre };
-    const savedMangas = getSavedMangas();
+  // کاربر باید وارد حسابش شده باشد
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
 
-    savedMangas.unshift(manga);
+  if (sessionError || !sessionData.session) {
+    alert("برای انتشار مانگا اول وارد حساب کاربری‌ات شو.");
+    openAuthModal();
+    return;
+  }
 
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedMangas));
-    } catch (error) {
-      alert("ذخیره‌سازی انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کن.");
-      return;
-    }
+  const user = sessionData.session.user;
 
-    grid.prepend(createMangaCard(manga));
-    closeModal();
-    applySearch();
+  const { data, error } = await supabaseClient
+    .from("mangas")
+    .insert({
+      user_id: user.id,
+      title: title,
+      description: description,
+      genre: genre
+    })
+    .select()
+    .single();
 
-    document.getElementById("manga").scrollIntoView({
-      behavior: "smooth"
-    });
+  if (error) {
+    alert("انتشار مانگا انجام نشد: " + error.message);
+    return;
+  }
+
+  const manga = {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    genre: data.genre
+  };
+
+  grid.prepend(createMangaCard(manga));
+  closeModal();
+  applySearch();
+
+  document.getElementById("manga").scrollIntoView({
+    behavior: "smooth"
   });
-
+});
   searchInput.addEventListener("input", applySearch);
 
   document.getElementById("clearSearch").addEventListener("click", function() {
@@ -881,13 +903,32 @@
     searchInput.focus();
   });
 
-  getSavedMangas().slice().reverse().forEach(function(manga) {
-    if (manga && manga.title && manga.description) {
-      grid.prepend(createMangaCard(manga));
-    }
+async function loadMangas() {
+  const { data, error } = await supabaseClient
+    .from("mangas")
+    .select("id, title, description, genre, cover_url, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("خطا در بارگذاری مانگاها:", error.message);
+    applySearch();
+    return;
+  }
+
+  data.slice().reverse().forEach(function(manga) {
+    grid.prepend(createMangaCard({
+      id: manga.id,
+      title: manga.title,
+      description: manga.description,
+      genre: manga.genre || "فانتزی",
+      cover: manga.cover_url
+    }));
   });
 
   applySearch();
+}
+
+loadMangas();
 </script>
 </body>
 </html>
