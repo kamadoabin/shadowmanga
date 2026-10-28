@@ -989,6 +989,157 @@ async function loadMangas() {
 }
 
 loadMangas();
+  
+document.addEventListener("DOMContentLoaded", function () {
+  const chaptersModal = document.getElementById("chaptersModal");
+  const chaptersList = document.getElementById("chaptersList");
+  const chaptersMangaTitle = document.getElementById("chaptersMangaTitle");
+  const closeChapters = document.getElementById("closeChapters");
+  const addChapterButton = document.getElementById("addChapterButton");
+
+  if (!chaptersModal || !chaptersList) {
+    console.error("پنجره مدیریت فصل‌ها پیدا نشد.");
+    return;
+  }
+
+  let selectedManga = null;
+
+  async function loadChapters() {
+    chaptersList.replaceChildren();
+
+    const loading = document.createElement("p");
+    loading.className = "muted";
+    loading.textContent = "در حال بارگذاری فصل‌ها...";
+    chaptersList.appendChild(loading);
+
+    const { data, error } = await supabaseClient
+      .from("manga_chapters")
+      .select("id, title, chapter_number")
+      .eq("manga_id", selectedManga.id)
+      .order("chapter_number", { ascending: true });
+
+    chaptersList.replaceChildren();
+
+    if (error) {
+      const message = document.createElement("p");
+      message.textContent = "بارگذاری فصل‌ها ناموفق بود: " + error.message;
+      chaptersList.appendChild(message);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      const message = document.createElement("p");
+      message.className = "muted";
+      message.textContent = "هنوز فصلی برای این مانگا ثبت نشده.";
+      chaptersList.appendChild(message);
+      return;
+    }
+
+    data.forEach(function (chapter) {
+      const item = document.createElement("div");
+      item.className = "community-card";
+      item.style.marginBottom = "10px";
+
+      const title = document.createElement("strong");
+      title.textContent =
+        "فصل " + chapter.chapter_number + " — " + chapter.title;
+
+      item.appendChild(title);
+      chaptersList.appendChild(item);
+    });
+  }
+
+  document.getElementById("mangaGrid").addEventListener("click", async function (event) {
+    const button = event.target.closest(".manage-chapters");
+    if (!button) return;
+
+    const mangaId = button.dataset.mangaId;
+    const card = button.closest(".manga-card");
+    const title = card?.querySelector("h3")?.textContent || "مانگا";
+
+    if (!mangaId) {
+      alert("شناسهٔ این مانگا پیدا نشد. لطفاً صفحه را تازه‌سازی کن.");
+      return;
+    }
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    selectedManga = { id: mangaId, title };
+
+    chaptersMangaTitle.textContent = "مانگا: " + title;
+    chaptersModal.classList.add("open");
+    addChapterButton.disabled = !sessionData.session;
+
+    await loadChapters();
+  });
+
+  closeChapters.addEventListener("click", function () {
+    chaptersModal.classList.remove("open");
+  });
+
+  chaptersModal.addEventListener("click", function (event) {
+    if (event.target === chaptersModal) {
+      chaptersModal.classList.remove("open");
+    }
+  });
+
+  addChapterButton.addEventListener("click", async function () {
+    if (!selectedManga) return;
+
+    const chapterTitle = prompt("عنوان فصل را وارد کن:");
+    if (chapterTitle === null) return;
+
+    const title = chapterTitle.trim();
+    if (!title) {
+      alert("عنوان فصل نمی‌تواند خالی باشد.");
+      return;
+    }
+
+    addChapterButton.disabled = true;
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError) throw sessionError;
+      if (!sessionData.session) {
+        alert("برای افزودن فصل ابتدا وارد حساب شو.");
+        return;
+      }
+
+      const { data: existing, error: listError } = await supabaseClient
+        .from("manga_chapters")
+        .select("chapter_number")
+        .eq("manga_id", selectedManga.id)
+        .order("chapter_number", { ascending: false })
+        .limit(1);
+
+      if (listError) throw listError;
+
+      const nextNumber = existing?.length
+        ? existing[0].chapter_number + 1
+        : 1;
+
+      const { error } = await supabaseClient
+        .from("manga_chapters")
+        .insert({
+          manga_id: selectedManga.id,
+          title: title,
+          chapter_number: nextNumber
+        });
+
+      if (error) throw error;
+
+      await loadChapters();
+      alert("فصل با موفقیت ذخیره شد! 💜");
+    } catch (error) {
+      console.error("خطا در افزودن فصل:", error);
+      alert("ذخیرهٔ فصل انجام نشد: " + error.message);
+    } finally {
+      addChapterButton.disabled = false;
+    }
+  });
+});
+
 </script>
   
 <div class="modal" id="chaptersModal" role="dialog" aria-modal="true">
