@@ -843,58 +843,118 @@
     if (event.key === "Escape") closeModal();
   });
 
+
 form.addEventListener("submit", async function(event) {
   event.preventDefault();
 
   const title = document.getElementById("titleInput").value.trim();
   const description = document.getElementById("descriptionInput").value.trim();
   const genre = document.getElementById("genreInput").value;
+  const coverFile = document.getElementById("coverInput").files[0];
 
   if (!title || !description) return;
 
-  // کاربر باید وارد حسابش شده باشد
+  if (coverFile && !coverFile.type.startsWith("image/")) {
+    alert("لطفاً یک فایل تصویری معتبر انتخاب کن.");
+    return;
+  }
+
+  if (coverFile && coverFile.size > 5 * 1024 * 1024) {
+    alert("حجم کاور باید حداکثر ۵ مگابایت باشد.");
+    return;
+  }
+
   const { data: sessionData, error: sessionError } =
     await supabaseClient.auth.getSession();
 
   if (sessionError || !sessionData.session) {
-    alert("برای انتشار مانگا اول وارد حساب کاربری‌ات شو.");
+    alert("برای انتشار مانگا ابتدا وارد حساب شو.");
     openAuthModal();
     return;
   }
 
   const user = sessionData.session.user;
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
 
-  const { data, error } = await supabaseClient
-    .from("mangas")
-    .insert({
-      user_id: user.id,
-      title: title,
-      description: description,
-      genre: genre
-    })
-    .select()
-    .single();
+  try {
+    const { data: manga, error: mangaError } = await supabaseClient
+      .from("mangas")
+      .insert({
+        user_id: user.id,
+        title,
+        description,
+        genre
+      })
+      .select()
+      .single();
 
-  if (error) {
-    alert("انتشار مانگا انجام نشد: " + error.message);
-    return;
+    if (mangaError) throw mangaError;
+
+    let coverUrl = null;
+
+    if (coverFile) {
+      const extension = coverFile.name.split(".").pop().toLowerCase();
+      const safeExtension = /^[a-z0-9]+$/.test(extension)
+        ? extension
+        : "jpg";
+
+      const filePath =
+        `${user.id}/${manga.id}/cover-${Date.now()}.${safeExtension}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from("manga-files")
+        .upload(filePath, coverFile, {
+          upsert: false,
+          contentType: coverFile.type
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabaseClient.storage
+        .from("manga-files")
+        .getPublicUrl(filePath);
+
+      coverUrl = urlData.publicUrl;
+
+      const { error: updateError } = await supabaseClient
+        .from("mangas")
+        .update({ cover_url: coverUrl })
+        .eq("id", manga.id)
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+    }
+
+    grid.prepend(createMangaCard({
+      id: manga.id,
+      title: manga.title,
+      description: manga.description,
+      genre: manga.genre || "فانتزی",
+      cover: coverUrl
+    }));
+
+    closeModal();
+    applySearch();
+
+    alert(
+      coverFile
+        ? "مانگا و کاورش با موفقیت منتشر شدند! 💜"
+        : "مانگا منتشر شد. برای آن کاور هم می‌توانی انتخاب کنی."
+    );
+
+    document.getElementById("manga").scrollIntoView({
+      behavior: "smooth"
+    });
+
+  } catch (error) {
+    console.error("خطا در انتشار مانگا:", error);
+    alert("انتشار کامل نشد: " + error.message);
+  } finally {
+    submitButton.disabled = false;
   }
-
-  const manga = {
-    id: data.id,
-    title: data.title,
-    description: data.description,
-    genre: data.genre
-  };
-
-  grid.prepend(createMangaCard(manga));
-  closeModal();
-  applySearch();
-
-  document.getElementById("manga").scrollIntoView({
-    behavior: "smooth"
-  });
 });
+
   searchInput.addEventListener("input", applySearch);
 
   document.getElementById("clearSearch").addEventListener("click", function() {
