@@ -990,5 +990,25 @@ async function loadMangas() {
 
 loadMangas();
 </script>
+  
+<div class="modal" id="chaptersModal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="chaptersHeading">مدیریت فصل‌ها</h2>
+      <button class="close" id="closeChapters" aria-label="بستن">×</button>
+    </div>
+
+    <p class="muted" id="chaptersMangaTitle"></p>
+
+    <div id="chaptersList">
+      <p class="muted">برای نمایش فصل‌ها، کمی صبر کن...</p>
+    </div>
+
+    <button class="button" id="addChapterButton">
+      ＋ افزودن فصل
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
