@@ -10,7 +10,7 @@
       --bg: #0c0a12;
       --panel: #171321;
       --purple: #a78bfa;
-      --red: #fb7185;ّ
+      --red: #fb7185;
       --text: #f7f2ff;
       --muted: #b8adc9;
       --line: #382c4b;
@@ -306,6 +306,47 @@
       margin-top: 18px;
     }
 
+
+    .account-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .account-status {
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 220px;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-message {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: #241b33;
+      color: var(--text);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-message:empty {
+      display: none;
+    }
+
+    .auth-fields {
+      display: grid;
+      gap: 10px;
+    }
+
+    .auth-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
     .empty {
       display: none;
       color: var(--muted);
@@ -348,7 +389,11 @@
       <a href="#about">درباره ما</a>
     </nav>
 
-    <button class="button" id="openForm">＋ انتشار مانگا</button>
+    <div class="account-area">
+      <span class="account-status" id="accountStatus">وارد حساب نشده‌ای</span>
+      <button class="button secondary" id="openAuth">ورود / ثبت‌نام</button>
+      <button class="button" id="openForm">＋ انتشار مانگا</button>
+    </div>
   </div>
 </header>
 
@@ -485,6 +530,37 @@
   </div>
 </footer>
 
+
+<div class="modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="authTitle">حساب ShadowManga</h2>
+      <button class="close" id="closeAuth" aria-label="بستن">×</button>
+    </div>
+
+    <p class="muted">با ایمیل خود ثبت‌نام کن یا وارد حساب قبلی‌ات شو.</p>
+
+    <div class="auth-fields">
+      <div>
+        <label for="authEmail">ایمیل</label>
+        <input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <div>
+        <label for="authPassword">رمز عبور (حداقل ۸ نویسه)</label>
+        <input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="رمز عبور">
+      </div>
+    </div>
+
+    <div class="auth-actions">
+      <button type="button" class="button" id="signInButton">ورود</button>
+      <button type="button" class="button secondary" id="signUpButton">ساخت حساب</button>
+      <button type="button" class="button secondary" id="signOutButton" hidden>خروج از حساب</button>
+    </div>
+
+    <div class="auth-message" id="authMessage" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
 <div class="modal" id="mangaModal" role="dialog" aria-modal="true">
   <div class="modal-content">
 
@@ -534,7 +610,143 @@
 </div>
 
   
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+
+  // Supabase Auth: the publishable key is intended for browser use.
+  const SUPABASE_URL = "https://urgxyiyrswmnnzebxewj.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_6Euo_NJSkgMC7m7ASeyyNg_hk3xPBFw";
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  const authModal = document.getElementById("authModal");
+  const authMessage = document.getElementById("authMessage");
+  const authEmail = document.getElementById("authEmail");
+  const authPassword = document.getElementById("authPassword");
+  const accountStatus = document.getElementById("accountStatus");
+  const signInButton = document.getElementById("signInButton");
+  const signUpButton = document.getElementById("signUpButton");
+  const signOutButton = document.getElementById("signOutButton");
+
+  function showAuthMessage(message) {
+    authMessage.textContent = message;
+  }
+
+  function openAuthModal() {
+    authModal.classList.add("open");
+    showAuthMessage("");
+    authEmail.focus();
+  }
+
+  function closeAuthModal() {
+    authModal.classList.remove("open");
+  }
+
+  function updateAccountUI(user) {
+    if (user) {
+      accountStatus.textContent = "وارد شده: " + user.email;
+      signInButton.hidden = true;
+      signUpButton.hidden = true;
+      signOutButton.hidden = false;
+    } else {
+      accountStatus.textContent = "وارد حساب نشده‌ای";
+      signInButton.hidden = false;
+      signUpButton.hidden = false;
+      signOutButton.hidden = true;
+    }
+  }
+
+  document.getElementById("openAuth").addEventListener("click", openAuthModal);
+  document.getElementById("closeAuth").addEventListener("click", closeAuthModal);
+  authModal.addEventListener("click", function(event) {
+    if (event.target === authModal) closeAuthModal();
+  });
+
+  signInButton.addEventListener("click", async function() {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password) {
+      showAuthMessage("ایمیل و رمز عبور را وارد کن.");
+      return;
+    }
+
+    signInButton.disabled = true;
+    showAuthMessage("در حال ورود...");
+    try {
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      showAuthMessage("ورود موفق بود.");
+      setTimeout(() => closeAuthModal(), 800);
+    } catch (error) {
+      showAuthMessage("ورود انجام نشد: " + error.message);
+    } finally {
+      signInButton.disabled = false;
+    }
+  });
+
+  signUpButton.addEventListener("click", async function() {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password) {
+      showAuthMessage("ایمیل و رمز عبور را وارد کن.");
+      return;
+    }
+    if (password.length < 8) {
+      showAuthMessage("رمز عبور باید حداقل ۸ نویسه داشته باشد.");
+      return;
+    }
+
+    signUpButton.disabled = true;
+    showAuthMessage("در حال ساخت حساب...");
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      });
+      if (error) throw error;
+
+      if (data.session) {
+        showAuthMessage("حساب ساخته شد و وارد شدی.");
+      } else {
+        showAuthMessage("حساب ساخته شد. ایمیلت را برای تأیید حساب بررسی کن.");
+      }
+    } catch (error) {
+      showAuthMessage("ثبت‌نام انجام نشد: " + error.message);
+    } finally {
+      signUpButton.disabled = false;
+    }
+  });
+
+  signOutButton.addEventListener("click", async function() {
+    signOutButton.disabled = true;
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) throw error;
+      showAuthMessage("از حساب خارج شدی.");
+    } catch (error) {
+      showAuthMessage("خروج انجام نشد: " + error.message);
+    } finally {
+      signOutButton.disabled = false;
+    }
+  });
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    updateAccountUI(session ? session.user : null);
+  });
+
+  supabaseClient.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      showAuthMessage("دریافت وضعیت حساب انجام نشد: " + error.message);
+      return;
+    }
+    updateAccountUI(data.session ? data.session.user : null);
+  });
+
   const modal = document.getElementById("mangaModal");
   const form = document.getElementById("mangaForm");
   const grid = document.getElementById("mangaGrid");
@@ -677,8 +889,5 @@
 
   applySearch();
 </script>
-
-</script>
-
 </body>
 </html>
