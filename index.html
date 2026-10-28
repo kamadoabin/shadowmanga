@@ -2,863 +2,581 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#100b1c">
-  <title>ShadowManga | دنیای مانگا</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --bg:#100b1c; --panel:#1b132b; --panel2:#251a38;
-      --purple:#a855f7; --purple2:#7c3aed; --text:#f5f0ff;
-      --muted:#b9abc9; --border:#38264e; --red:#ef4444; --green:#22c55e;
-    }
-    * { box-sizing:border-box }
-    body {
-      margin:0; font-family:Tahoma,Arial,sans-serif; background:var(--bg);
-      color:var(--text); line-height:1.8;
-    }
-    button,input,textarea,select { font:inherit }
-    button { cursor:pointer; border:0; border-radius:10px; padding:10px 15px; color:white; background:var(--purple2) }
-    button:hover { filter:brightness(1.13) }
-    button:disabled { opacity:.5; cursor:not-allowed }
-    .secondary { background:#38264e }
-    .danger { background:#991b1b }
-    .success { background:#166534 }
-    header {
-      display:flex; justify-content:space-between; align-items:center; gap:15px;
-      flex-wrap:wrap; padding:18px 5%; border-bottom:1px solid var(--border);
-      background:#130d20; position:sticky; top:0; z-index:5;
-    }
-    .logo { font-size:25px; font-weight:bold; color:#d8b4fe }
-    nav { display:flex; flex-wrap:wrap; gap:8px }
-    nav button { background:transparent; border:1px solid var(--border) }
-    nav button.active { background:var(--purple2) }
-    main { width:min(1200px,92%); margin:28px auto 70px }
-    .hero {
-      padding:35px; border:1px solid var(--border); border-radius:20px;
-      background:linear-gradient(130deg,#30194b,#171023 65%,#25123b);
-      margin-bottom:25px;
-    }
-    h1,h2,h3 { line-height:1.5 }
-    h1 { margin-top:0 }
-    .muted,small { color:var(--muted) }
-    .section { margin:28px 0 }
-    .panel { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:20px }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:18px }
-    .card { background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden; min-width:0 }
-    .cover { width:100%; height:265px; object-fit:cover; display:block; background:var(--panel2) }
-    .card-body { padding:14px }
-    .card h3 { margin:0 0 8px }
-    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px }
-    .actions button { flex:1 }
-    input,textarea,select {
-      width:100%; padding:12px; margin:5px 0 14px; color:var(--text);
-      background:#110b1b; border:1px solid var(--border); border-radius:9px;
-    }
-    textarea { min-height:90px; resize:vertical }
-    label { display:block; color:#e9d5ff }
-    .row { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:15px }
-    .hidden { display:none !important }
-    .notice { padding:12px 15px; border-radius:10px; background:#2a1c3c; margin:15px 0; white-space:pre-wrap }
-    .notice.error { background:#451a25; color:#fecaca }
-    .notice.ok { background:#123b2a; color:#bbf7d0 }
-    .chapter-row,.user-row { padding:14px 0; border-bottom:1px solid var(--border) }
-    .chapter-row:last-child,.user-row:last-child { border-bottom:0 }
-    .chapter-top { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap }
-    .reader {
-      position:fixed; inset:0; z-index:20; background:#090610f5;
-      overflow:auto; padding:20px;
-    }
-    .reader-inner { width:min(950px,100%); margin:auto }
-    .reader-bar {
-      position:sticky; top:0; background:#130d20; padding:12px;
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      flex-wrap:wrap; border:1px solid var(--border); border-radius:12px; z-index:2;
-    }
-    .reader-page { display:block; max-width:100%; height:auto; margin:20px auto; border-radius:5px }
-    .reader-pdf { width:100%; height:78vh; border:0; background:white; margin-top:18px }
-    .empty { padding:25px; text-align:center; color:var(--muted); border:1px dashed var(--border); border-radius:12px }
-    footer { border-top:1px solid var(--border); text-align:center; padding:25px; color:var(--muted) }
-    .spinner { display:inline-block; animation:spin 1s linear infinite }
-    @keyframes spin { to { transform:rotate(360deg) } }
-    @media(max-width:600px) {
-      header { position:static }
-      .hero { padding:22px }
-      .cover { height:220px }
-      main { width:94% }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShadowManga | دنیای داستان‌ها</title>
+<style>
+:root{--bg:#0c0a12;--panel:#171321;--purple:#a78bfa;--pink:#f0abfc;--red:#fb7185;--text:#f7f2ff;--muted:#b8adc9;--line:#382c4b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:radial-gradient(ellipse at top,#241337,var(--bg) 65%);color:var(--text);line-height:1.8}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.container{width:min(1120px,92%);margin:auto}
+header{position:sticky;top:0;z-index:10;background:#0c0a12ed;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.navbar,.account-area,nav,.actions,.modal-header,.search{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.navbar{padding:14px 0}
+.logo{font-size:25px;font-weight:bold;color:var(--text);text-decoration:none}
+.logo span{color:var(--red)}
+nav a{color:var(--muted);text-decoration:none}
+nav a:hover{color:white}
+.button{border:0;border-radius:10px;padding:10px 16px;background:linear-gradient(120deg,var(--purple),var(--pink));color:#100b19;font-weight:bold}
+.secondary{background:#241b33;border:1px solid var(--line);color:var(--text)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hero{padding:48px 0;display:grid;grid-template-columns:1.2fr .8fr;align-items:center;gap:28px}
+h1{font-size:clamp(32px,5vw,55px);line-height:1.5}
+h1 span,.symbol{color:var(--purple)}
+.description,.muted{color:var(--muted)}
+.eyebrow{color:var(--red);font-weight:bold}
+.hero-art{min-height:250px;display:grid;place-items:center;text-align:center;padding:25px;border:1px solid var(--line);border-radius:25px;background:linear-gradient(145deg,#39224f,#171321,#401c35)}
+.symbol{font-size:80px}
+section{padding:24px 0}
+input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#100d18;color:white}
+label{display:block;margin:12px 0 5px}
+.manga-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px}
+.manga-card,.community-card{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.cover{height:240px;display:grid;place-items:center;font-size:65px;background:linear-gradient(135deg,#402554,#171321,#4b1d37);overflow:hidden}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.card-content{padding:17px}
+.card-content p{color:var(--muted);font-size:14px;min-height:48px}
+.tag{display:inline-block;margin:3px;padding:3px 9px;border-radius:20px;background:#30223f;color:#dfccff;font-size:12px}
+.community{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.community-card{padding:18px;margin:10px 0}
+.notice,.status{padding:12px;border-right:4px solid var(--red);background:#241522;border-radius:8px;overflow-wrap:anywhere}
+.empty{display:none;color:var(--muted);padding:20px;text-align:center}
+.modal{display:none;position:fixed;inset:0;z-index:20;background:#000d;padding:16px;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-content{width:min(650px,100%);max-height:92vh;overflow:auto;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:18px}
+.modal-content.wide{width:min(1000px,100%)}
+.close{color:white;background:transparent;border:0;font-size:28px}
+.message{margin-top:12px;padding:10px;background:#241b33;border-radius:9px;overflow-wrap:anywhere}
+.message:empty{display:none}
+.chapter-row{padding:14px;margin:12px 0;border:1px solid var(--line);border-radius:12px;background:#100d18}
+.chapter-row .actions{justify-content:flex-start}
+.reader-page{display:block;max-width:100%;height:auto;margin:14px auto;border-radius:8px}
+.reader-pdf{width:100%;height:75vh;border:1px solid var(--line);border-radius:10px;background:white}
+.small{font-size:13px;color:var(--muted)}
+footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var(--muted);text-align:center}
+[hidden]{display:none!important}
+@media(max-width:800px){.hero,.manga-grid,.community{grid-template-columns:1fr}.navbar{align-items:flex-start}.search{flex-direction:column;align-items:stretch}nav{justify-content:flex-start}}
+</style>
 </head>
 <body>
 <header>
-  <div class="logo">影 ShadowManga</div>
-  <nav id="mainNav">
-    <button class="active" data-view="home">خانه</button>
-    <button data-view="library">کتابخانه</button>
-    <button data-view="users">کاربران</button>
-    <button data-view="publish">انتشار مانگا</button>
-    <button data-view="account">حساب کاربری</button>
-  </nav>
-  <div id="authStatus" class="muted">در حال اتصال...</div>
+<div class="container navbar">
+<a href="#" class="logo"><span>Shadow</span>Manga</a>
+<nav><a href="#manga">مانگاها</a><a href="#updates">تازه‌ها</a><a href="#community">انجمن</a><a href="#about">درباره ما</a></nav>
+<div class="account-area">
+<span id="accountStatus" class="muted">در حال بررسی حساب...</span>
+<button class="button secondary" id="openAuth">ورود / ثبت‌نام</button>
+<button class="button" id="openForm">＋ انتشار مانگا</button>
+</div>
+</div>
 </header>
 
-<main>
-  <section id="homeView">
-    <div class="hero">
-      <h1>به دنیای ShadowManga خوش آمدی</h1>
-      <p>مانگاهای خودت رو منتشر کن، آثار دیگران رو بخون و داستانت رو با جامعه به اشتراک بذار.</p>
-      <div class="actions">
-        <button onclick="showView('library')">مشاهدهٔ کتابخانه</button>
-        <button class="secondary" onclick="showView('publish')">انتشار اثر جدید</button>
-      </div>
-    </div>
-    <div class="section">
-      <h2>تازه‌ترین مانگاها</h2>
-      <div id="latestMangas" class="grid"><div class="empty">در حال بارگذاری...</div></div>
-    </div>
-  </section>
+<main class="container">
+<section class="hero">
+<div>
+<div class="eyebrow">دنیای داستان‌های تو</div>
+<h1>داستانت رو بنویس، <span>جهانت رو بساز!</span></h1>
+<p class="description">به ShadowManga خوش اومدی؛ جایی برای کشف مانگاهای جدید و ارتباط با نویسنده‌ها و خواننده‌ها.</p>
+<button class="button" id="discover">کشف مانگاها</button>
+<button class="button secondary" id="openForm2">انتشار داستان من</button>
+</div>
+<div class="hero-art"><div><div class="symbol">影 ✦</div><h2>هر داستان، یک جهان تازه</h2><p class="muted">جهان خودت رو خلق کن.</p></div></div>
+</section>
 
-  <section id="libraryView" class="hidden">
-    <h1>کتابخانهٔ مانگا</h1>
-    <label for="searchInput">جست‌وجوی عنوان، توضیحات یا ژانر</label>
-    <input id="searchInput" placeholder="نام مانگا یا ژانر را بنویس..." autocomplete="off">
-    <div id="libraryMangas" class="grid"></div>
-  </section>
+<section id="manga">
+<h2>📚 مانگاها</h2>
+<p class="muted">روی «مشاهده و مطالعه» بزن تا وارد مانگا بشی.</p>
+<div class="search"><input id="searchInput" type="search" placeholder="اسم مانگا رو جست‌وجو کن..."><button class="button secondary" id="clearSearch">پاک کردن</button></div>
+<div class="manga-grid" id="mangaGrid"></div>
+<div class="empty" id="emptySearch">هنوز مانگایی منتشر نشده.</div>
+</section>
 
-  <section id="usersView" class="hidden">
-    <h1>کاربران ShadowManga</h1>
-    <p class="muted">فهرست پروفایل‌های عمومی و آثار منتشرشدهٔ اعضا.</p>
-    <div id="usersList" class="panel"><div class="empty">در حال بارگذاری...</div></div>
-  </section>
-
-  <section id="publishView" class="hidden">
-    <h1>انتشار و مدیریت آثار</h1>
-    <div id="publishLoginHint" class="notice">برای انتشار مانگا باید وارد حساب کاربری شوی.</div>
-    <div id="publishFormWrap" class="panel hidden">
-      <form id="mangaForm">
-        <h2>ساخت مانگای جدید</h2>
-        <label for="mangaTitle">عنوان مانگا *</label>
-        <input id="mangaTitle" required maxlength="150" placeholder="عنوان داستان">
-        <label for="mangaDescription">توضیحات</label>
-        <textarea id="mangaDescription" maxlength="5000" placeholder="داستان دربارهٔ چیست؟"></textarea>
-        <label for="mangaGenre">ژانر</label>
-        <input id="mangaGenre" maxlength="100" placeholder="اکشن، فانتزی، درام...">
-        <label for="mangaCover">تصویر جلد (اختیاری)</label>
-        <input id="mangaCover" type="file" accept="image/*">
-        <button type="submit">انتشار مانگا</button>
-      </form>
-    </div>
-    <h2>مانگاهای من</h2>
-    <div id="myMangas" class="grid"></div>
-  </section>
-
-  <section id="accountView" class="hidden">
-    <h1>حساب کاربری</h1>
-    <div id="loggedOutPanel" class="panel">
-      <div class="row">
-        <form id="loginForm">
-          <h2>ورود</h2>
-          <label for="loginEmail">ایمیل</label>
-          <input id="loginEmail" type="email" required autocomplete="email">
-          <label for="loginPassword">رمز عبور</label>
-          <input id="loginPassword" type="password" required autocomplete="current-password">
-          <button type="submit">ورود به حساب</button>
-        </form>
-        <form id="signupForm">
-          <h2>ساخت حساب</h2>
-          <label for="signupName">نام نمایشی</label>
-          <input id="signupName" required maxlength="60" placeholder="نامی که دیگران می‌بینند">
-          <label for="signupEmail">ایمیل</label>
-          <input id="signupEmail" type="email" required autocomplete="email">
-          <label for="signupPassword">رمز عبور (حداقل ۶ حرف)</label>
-          <input id="signupPassword" type="password" required minlength="6" autocomplete="new-password">
-          <button type="submit">ثبت‌نام</button>
-        </form>
-      </div>
-    </div>
-    <div id="loggedInPanel" class="panel hidden">
-      <h2>پروفایل من</h2>
-      <form id="profileForm">
-        <label for="profileName">نام نمایشی</label>
-        <input id="profileName" required maxlength="60">
-        <button type="submit">ذخیرهٔ پروفایل</button>
-      </form>
-      <p id="profileEmail" class="muted"></p>
-      <button class="danger" id="logoutButton">خروج از حساب</button>
-    </div>
-  </section>
+<section id="updates"><h2>📰 آخرین خبرها</h2><div class="notice">نسخهٔ آزمایشی ShadowManga؛ اطلاعات و فایل‌ها در Supabase ذخیره می‌شوند.</div></section>
+<section id="community">
+<h2>🌐 انجمن داستان‌سازها</h2>
+<div class="community">
+<div class="community-card"><h3>✍️ نویسنده‌ها</h3><p class="muted">مانگا منتشر کن و فصل‌ها و صفحات داستانت رو مدیریت کن.</p></div>
+<div class="community-card"><h3>💬 گفت‌وگو</h3><p class="muted">امکانات گفت‌وگوی انجمن در نسخه‌های بعدی اضافه می‌شوند.</p></div>
+</div>
+</section>
+<section id="about"><h2>درباره ShadowManga</h2><p class="description">فضایی برای انتشار داستان‌های خلاقانه و ارتباط میان نویسنده‌ها و خواننده‌ها.</p></section>
 </main>
 
-<div id="reader" class="reader hidden">
-  <div class="reader-inner">
-    <div class="reader-bar">
-      <div>
-        <strong id="readerTitle">مطالعهٔ مانگا</strong>
-        <div id="readerSubtitle" class="muted"></div>
-      </div>
-      <button class="danger" onclick="closeReader()">بستن</button>
-    </div>
-    <div class="panel">
-      <label for="readerChapterSelect">انتخاب فصل</label>
-      <select id="readerChapterSelect"></select>
-      <div id="readerContent"><div class="empty">فصلی انتخاب نشده است.</div></div>
-    </div>
-  </div>
+<footer>ShadowManga © نسخهٔ آزمایشی<br>ساخته‌شده برای شروع یک جهان تازه 💜</footer>
+
+<div class="modal" id="authModal" role="dialog" aria-modal="true">
+<div class="modal-content">
+<div class="modal-header"><h2>حساب ShadowManga</h2><button class="close" data-close="authModal">×</button></div>
+<p class="muted">با ایمیل ثبت‌نام کن یا وارد حساب شو.</p>
+<label for="authEmail">ایمیل</label><input id="authEmail" type="email" autocomplete="email">
+<label for="authPassword">رمز عبور (حداقل ۸ نویسه)</label><input id="authPassword" type="password" minlength="8" autocomplete="current-password">
+<div class="actions"><button class="button" id="signIn">ورود</button><button class="button secondary" id="signUp">ساخت حساب</button><button class="button secondary" id="signOut" hidden>خروج</button></div>
+<div class="message" id="authMessage" role="status"></div>
+</div>
 </div>
 
-<div id="toast" class="notice hidden" style="position:fixed;bottom:15px;left:15px;right:15px;z-index:50"></div>
+<div class="modal" id="mangaModal" role="dialog" aria-modal="true">
+<div class="modal-content">
+<div class="modal-header"><h2>انتشار مانگا</h2><button class="close" data-close="mangaModal">×</button></div>
+<form id="mangaForm">
+<label for="title">عنوان مانگا</label><input id="title" required maxlength="70">
+<label for="description">توضیحات</label><textarea id="description" required maxlength="500" rows="3"></textarea>
+<label for="genre">ژانر</label>
+<select id="genre"><option>فانتزی</option><option>اکشن</option><option>ماجراجویی</option><option>معمایی</option><option>درام</option><option>ترسناک</option><option>علمی‌تخیلی</option><option>عاشقانه</option><option>کمدی</option></select>
+<label for="cover">تصویر کاور (اختیاری، حداکثر ۵ مگابایت)</label><input id="cover" type="file" accept="image/*">
+<div class="actions" style="margin-top:16px"><button type="submit" class="button">انتشار مانگا</button><button type="button" class="button secondary" data-close="mangaModal">انصراف</button></div>
+</form>
+</div>
+</div>
 
-<footer>
-  <p>ShadowManga — داستانت رو خودت بنویس.</p>
-  <small>برای گزارش مشکل یا پیشنهاد، از مسیر ارتباطی رسمی پروژه استفاده کن.</small>
-</footer>
+<div class="modal" id="chaptersModal" role="dialog" aria-modal="true">
+<div class="modal-content">
+<div class="modal-header"><h2>مدیریت فصل‌ها</h2><button class="close" data-close="chaptersModal">×</button></div>
+<p class="muted" id="chapterMangaTitle"></p>
+<div id="chaptersList"></div>
+<button class="button" id="addChapter">＋ افزودن فصل</button>
+<div class="message" id="chapterMessage"></div>
+</div>
+</div>
 
+<div class="modal" id="readerModal" role="dialog" aria-modal="true">
+<div class="modal-content wide">
+<div class="modal-header"><h2 id="readerTitle">مطالعهٔ مانگا</h2><button class="close" data-close="readerModal">×</button></div>
+<p id="readerDescription" class="muted"></p>
+<div id="readerChapters"></div><div id="readerContent"></div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(() => {
-  "use strict";
+const SUPABASE_URL="https://urgxyiyrswmnnzebxewj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_6Euo_NJSkgMC7m7ASeyyNg_hk3xPBFw";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const $=id=>document.getElementById(id);
+let user=null,activeManga=null,activeReaderManga=null;
 
-  const SUPABASE_URL = "https://urgxyiyrswmnnzebxewj.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_6Euo_NJSkgMC7m7ASeyyNg_hk3xPBFw";
-  const BUCKET = "manga-files";
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+function showMessage(id,t){$(id).textContent=t}
+function modal(id,on){$(id).classList.toggle('open',on)}
 
-  const $ = id => document.getElementById(id);
-  let currentUser = null;
-  let currentProfile = null;
-  let mangas = [];
-  let readerManga = null;
-  let toastTimer = null;
+function updateUser(u){
+ user=u||null;
+ $('accountStatus').textContent=user?'وارد شده: '+user.email:'وارد حساب نشده‌ای';
+ $('openAuth').textContent=user?'حساب کاربری':'ورود / ثبت‌نام';
+ $('signIn').hidden=!!user;
+ $('signUp').hidden=!!user;
+ $('signOut').hidden=!user;
+}
 
-  function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, ch => ({
-      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-    })[ch]);
+$('openAuth').onclick=()=>modal('authModal',true);
+$('openForm').onclick=$('openForm2').onclick=()=>user?modal('mangaModal',true):modal('authModal',true);
+$('discover').onclick=()=>$('manga').scrollIntoView({behavior:'smooth'});
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>modal(b.dataset.close,false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'))});
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)modal(m.id,false)}));
+
+$('signIn').onclick=async()=>{
+ const email=$('authEmail').value.trim(),password=$('authPassword').value;
+ if(!email||!password)return showMessage('authMessage','ایمیل و رمز عبور را وارد کن.');
+ try{
+  const{error}=await sb.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  modal('authModal',false);
+  showMessage('authMessage','ورود موفق بود.');
+ }catch(e){showMessage('authMessage','ورود انجام نشد: '+e.message)}
+};
+
+$('signUp').onclick=async()=>{
+ const email=$('authEmail').value.trim(),password=$('authPassword').value;
+ if(!email||!password)return showMessage('authMessage','ایمیل و رمز عبور را وارد کن.');
+ if(password.length<8)return showMessage('authMessage','رمز عبور باید حداقل ۸ نویسه باشد.');
+ try{
+  const{data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error)throw error;
+  showMessage('authMessage',data.session?'حساب ساخته شد و وارد شدی.':'حساب ساخته شد؛ ایمیلت را برای تأیید بررسی کن.');
+ }catch(e){showMessage('authMessage','ثبت‌نام ناموفق بود: '+e.message)}
+};
+
+$('signOut').onclick=async()=>{
+ const{error}=await sb.auth.signOut();
+ if(error)showMessage('authMessage',error.message);
+ else{
+  updateUser(null);
+  await loadMangas();
+  showMessage('authMessage','از حساب خارج شدی.');
+ }
+};
+
+/* اصلاح مهم: بعد از ورود یا خروج، کارت‌ها دوباره رندر می‌شوند. */
+sb.auth.onAuthStateChange((_event,session)=>{
+ updateUser(session?.user||null);
+ setTimeout(()=>loadMangas(),0);
+});
+
+function mangaCard(m){
+ const c=document.createElement('article');
+ c.className='manga-card';
+ c.dataset.title=(m.title||'').toLocaleLowerCase('fa');
+
+ const cover=document.createElement('div');
+ cover.className='cover';
+ if(m.cover_url){
+  const img=document.createElement('img');
+  img.src=m.cover_url;img.alt='کاور '+m.title;img.loading='lazy';
+  cover.append(img);
+ }else cover.textContent='影 ✦';
+
+ const body=document.createElement('div');
+ body.className='card-content';
+ const h=document.createElement('h3');h.textContent=m.title;
+ const p=document.createElement('p');p.textContent=m.description||'بدون توضیحات';
+ const tag=document.createElement('span');tag.className='tag';tag.textContent=m.genre||'فانتزی';
+ const actions=document.createElement('div');actions.className='actions';
+
+ const read=document.createElement('button');
+ read.className='button';read.textContent='مشاهده و مطالعه';
+ read.onclick=()=>openReader(m);
+ actions.append(read);
+
+ /* دکمه مدیریت فصل فقط برای صاحب همان مانگا */
+ if(user&&m.user_id===user.id){
+  const manage=document.createElement('button');
+  manage.className='button secondary';
+  manage.textContent='＋ افزودن فصل / مدیریت فصل‌ها';
+  manage.onclick=()=>openChapterManager(m);
+  actions.append(manage);
+ }
+
+ body.append(h,p,tag,actions);
+ c.append(cover,body);
+ return c;
+}
+
+function search(){
+ const q=$('searchInput').value.trim().toLocaleLowerCase('fa');
+ let n=0;
+ $('mangaGrid').querySelectorAll('.manga-card').forEach(c=>{
+  const ok=c.dataset.title.includes(q);
+  c.style.display=ok?'':'none';
+  if(ok)n++;
+ });
+ $('emptySearch').style.display=n?'none':'block';
+ if(!n&&q)$('emptySearch').textContent='مانگایی با این نام پیدا نشد.';
+ else if(!n)$('emptySearch').textContent='هنوز مانگایی منتشر نشده.';
+}
+$('searchInput').addEventListener('input',search);
+$('clearSearch').onclick=()=>{$('searchInput').value='';search()};
+
+async function loadMangas(){
+ const{data,error}=await sb.from('mangas')
+  .select('id,user_id,title,description,genre,cover_url,created_at')
+  .order('created_at',{ascending:false});
+
+ if(error){
+  console.error(error);
+  $('mangaGrid').replaceChildren();
+  $('emptySearch').textContent='بارگذاری ناموفق بود: '+error.message;
+  $('emptySearch').style.display='block';
+  return;
+ }
+ $('mangaGrid').replaceChildren(...(data||[]).map(mangaCard));
+ search();
+}
+
+async function uploadFile(path,file){
+ const{error}=await sb.storage.from('manga-files').upload(path,file,{contentType:file.type,upsert:false});
+ if(error)throw error;
+ return sb.storage.from('manga-files').getPublicUrl(path).data.publicUrl;
+}
+
+$('mangaForm').onsubmit=async e=>{
+ e.preventDefault();
+ if(!user){modal('authModal',true);return}
+ const title=$('title').value.trim();
+ const description=$('description').value.trim();
+ const genre=$('genre').value;
+ const file=$('cover').files[0];
+
+ if(file&&(!file.type.startsWith('image/')||file.size>5*1024*1024))
+  return alert('کاور باید تصویر و حداکثر ۵ مگابایت باشد.');
+
+ const btn=$('mangaForm').querySelector('[type=submit]');
+ btn.disabled=true;btn.textContent='در حال انتشار...';
+ let mangaId=null;
+ let coverPath=null;
+
+ try{
+  const{data:m,error}=await sb.from('mangas')
+   .insert({user_id:user.id,title,description,genre}).select().single();
+  if(error)throw error;
+  mangaId=m.id;
+
+  if(file){
+   const ext=/^[a-z0-9]+$/i.test(file.name.split('.').pop())?file.name.split('.').pop().toLowerCase():'jpg';
+   coverPath=`${user.id}/${m.id}/cover-${crypto.randomUUID()}.${ext}`;
+   const url=await uploadFile(coverPath,file);
+   const{error:upd}=await sb.from('mangas').update({cover_url:url}).eq('id',m.id).eq('user_id',user.id);
+   if(upd)throw upd;
   }
 
-  function showToast(message, type = "") {
-    const el = $("toast");
-    el.textContent = message;
-    el.className = "notice" + (type ? " " + type : "");
-    el.classList.remove("hidden");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.add("hidden"), 4500);
+  modal('mangaModal',false);
+  $('mangaForm').reset();
+  await loadMangas();
+  alert('مانگا منتشر شد 💜 حالا از روی کارت، «افزودن فصل / مدیریت فصل‌ها» را بزن.');
+ }catch(err){
+  console.error(err);
+  if(coverPath){
+   await sb.storage.from('manga-files').remove([coverPath]).catch(()=>{});
   }
+  alert('انتشار کامل نشد: '+err.message+(mangaId?' (ممکن است اطلاعات مانگا ذخیره شده باشد.)':''));
+  await loadMangas();
+ }finally{
+  btn.disabled=false;btn.textContent='انتشار مانگا';
+ }
+};
 
-  function failMessage(error, fallback = "عملیات انجام نشد.") {
-    console.error(error);
-    return error?.message || fallback;
-  }
+async function openChapterManager(m){
+ if(!user){modal('authModal',true);return}
+ activeManga=m;
+ $('chapterMangaTitle').textContent='مانگا: '+m.title;
+ showMessage('chapterMessage','');
+ modal('chaptersModal',true);
+ await loadManagerChapters();
+}
 
-  function safeFileName(name) {
-    return String(name || "file").normalize("NFKC").replace(/[^\w.\-]+/g, "_").slice(-120);
-  }
+async function loadManagerChapters(){
+ if(!activeManga)return;
+ $('chaptersList').textContent='در حال بارگذاری...';
 
-  function publicFileUrl(path) {
-    return db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-  }
+ const{data,error}=await sb.from('manga_chapters')
+  .select('id,title,chapter_number')
+  .eq('manga_id',activeManga.id)
+  .order('chapter_number');
 
-  function isOwner(manga) {
-    return !!currentUser && manga.user_id === currentUser.id;
-  }
+ $('chaptersList').replaceChildren();
 
-  window.showView = function(view) {
-    const allowed = ["home", "library", "users", "publish", "account"];
-    if (!allowed.includes(view)) return;
-    allowed.forEach(name => $(name + "View").classList.toggle("hidden", name !== view));
-    document.querySelectorAll("#mainNav button").forEach(btn =>
-      btn.classList.toggle("active", btn.dataset.view === view)
-    );
-    if (view === "library") renderLibrary();
-    if (view === "users") loadUsers();
-    if (view === "publish") renderMyMangas();
-    if (view === "account") renderAccount();
-    window.scrollTo({ top:0, behavior:"smooth" });
+ if(error){
+  $('chaptersList').textContent='خطا: '+error.message;
+  return;
+ }
+ if(!data?.length){
+  $('chaptersList').textContent='هنوز فصلی ثبت نشده؛ «افزودن فصل» را بزن.';
+  return;
+ }
+
+ for(const ch of data){
+  const box=document.createElement('div');
+  box.className='chapter-row';
+  const h=document.createElement('strong');
+  h.textContent=`فصل ${ch.chapter_number} — ${ch.title}`;
+  const label=document.createElement('label');
+  label.textContent='چند تصویر مرتب یا فقط یک PDF انتخاب کن (حداکثر ۲۰ مگابایت برای هر فایل)';
+  const input=document.createElement('input');
+  input.type='file';input.accept='image/*,application/pdf';input.multiple=true;
+  const status=document.createElement('p');status.className='small';
+
+  input.onchange=async()=>{
+   const files=[...input.files];
+   if(!files.length)return;
+
+   const hasPdf=files.some(f=>f.type==='application/pdf');
+   if(files.some(f=>!f.type.startsWith('image/')&&f.type!=='application/pdf')||(hasPdf&&files.length>1)){
+    alert('چند تصویر انتخاب کن یا فقط یک PDF.');
+    input.value='';return;
+   }
+   if(files.some(f=>f.size>20*1024*1024)){
+    alert('هر فایل باید حداکثر ۲۰ مگابایت باشد.');
+    input.value='';return;
+   }
+
+   input.disabled=true;status.textContent='در حال آپلود...';
+   const uploadedPaths=[];
+   const insertedIds=[];
+
+   try{
+    const{data:s}=await sb.auth.getSession();
+    const u=s.session?.user;
+    if(!u)throw Error('ابتدا وارد حساب شو.');
+
+    const{data:owner,error:oe}=await sb.from('mangas')
+     .select('id').eq('id',activeManga.id).eq('user_id',u.id).maybeSingle();
+    if(oe)throw oe;
+    if(!owner)throw Error('فقط صاحب مانگا می‌تواند فصل‌ها را ویرایش کند.');
+
+    const{data:old,error:pe}=await sb.from('manga_pages')
+     .select('page_number').eq('chapter_id',ch.id)
+     .order('page_number',{ascending:false}).limit(1);
+    if(pe)throw pe;
+
+    let n=old?.length?old[0].page_number+1:1;
+
+    for(const f of files){
+     const image=f.type.startsWith('image/');
+     const type=image?'image':'pdf';
+     const ext=/^[a-z0-9]+$/i.test(f.name.split('.').pop())?f.name.split('.').pop().toLowerCase():(image?'jpg':'pdf');
+     const path=`${u.id}/${activeManga.id}/${ch.id}/${crypto.randomUUID()}.${ext}`;
+
+     await uploadFile(path,f);
+     uploadedPaths.push(path);
+
+     const{data:page,error:ins}=await sb.from('manga_pages')
+      .insert({chapter_id:ch.id,file_path:path,file_type:type,page_number:n})
+      .select('id').single();
+     if(ins)throw ins;
+     if(page)insertedIds.push(page.id);
+     n++;
+    }
+
+    status.textContent='فایل‌ها ذخیره شدند 💜';
+    input.value='';
+   }catch(err){
+    console.error(err);
+    if(insertedIds.length)await sb.from('manga_pages').delete().in('id',insertedIds);
+    if(uploadedPaths.length)await sb.storage.from('manga-files').remove(uploadedPaths);
+    status.textContent='خطا: '+err.message;
+   }finally{
+    input.disabled=false;
+   }
   };
 
-  document.querySelectorAll("#mainNav button").forEach(btn =>
-    btn.addEventListener("click", () => showView(btn.dataset.view))
-  );
+  box.append(h,label,input,status);
+  $('chaptersList').append(box);
+ }
+}
 
-  async function loadProfile() {
-    if (!currentUser) {
-      currentProfile = null;
-      return;
-    }
-    const { data, error } = await db.from("profiles")
-      .select("id,display_name,created_at")
-      .eq("id", currentUser.id).maybeSingle();
-    if (error) {
-      console.warn("Could not load profile:", error.message);
-      currentProfile = { id:currentUser.id, display_name:currentUser.email?.split("@")[0] || "مانگاکا" };
-      return;
-    }
-    if (!data) {
-      const fallbackName = currentUser.user_metadata?.display_name || currentUser.email?.split("@")[0] || "مانگاکا";
-      const result = await db.from("profiles").upsert({
-        id:currentUser.id, display_name:fallbackName
-      }, { onConflict:"id" }).select().maybeSingle();
-      currentProfile = result.data || { id:currentUser.id, display_name:fallbackName };
-    } else {
-      currentProfile = data;
-    }
+$('addChapter').onclick=async()=>{
+ if(!activeManga||!user){modal('authModal',true);return}
+ const title=prompt('عنوان فصل را وارد کن:');
+ if(title===null)return;
+ if(!title.trim())return alert('عنوان فصل نمی‌تواند خالی باشد.');
+
+ const b=$('addChapter');
+ b.disabled=true;
+
+ try{
+  const{data:owner,error:oe}=await sb.from('mangas')
+   .select('id').eq('id',activeManga.id).eq('user_id',user.id).maybeSingle();
+  if(oe)throw oe;
+  if(!owner)throw Error('فقط صاحب مانگا می‌تواند فصل اضافه کند.');
+
+  const{data:old,error:pe}=await sb.from('manga_chapters')
+   .select('chapter_number').eq('manga_id',activeManga.id)
+   .order('chapter_number',{ascending:false}).limit(1);
+  if(pe)throw pe;
+
+  const n=old?.length?old[0].chapter_number+1:1;
+  const{error}=await sb.from('manga_chapters')
+   .insert({manga_id:activeManga.id,title:title.trim(),chapter_number:n});
+  if(error)throw error;
+
+  await loadManagerChapters();
+  showMessage('chapterMessage','فصل ذخیره شد 💜 حالا فایل‌هایش را انتخاب کن.');
+ }catch(err){
+  alert('ثبت فصل ناموفق بود: '+err.message);
+ }finally{
+  b.disabled=false;
+ }
+};
+
+async function openReader(m){
+ activeReaderManga=m;
+ $('readerTitle').textContent=m.title;
+ $('readerDescription').textContent=m.description||'';
+ $('readerChapters').textContent='در حال بارگذاری فصل‌ها...';
+ $('readerContent').replaceChildren();
+ modal('readerModal',true);
+
+ const{data:chs,error}=await sb.from('manga_chapters')
+  .select('id,title,chapter_number').eq('manga_id',m.id).order('chapter_number');
+
+ $('readerChapters').replaceChildren();
+
+ if(error){
+  $('readerChapters').textContent='بارگذاری فصل‌ها ناموفق بود: '+error.message;
+  return;
+ }
+ if(!chs?.length){
+  $('readerChapters').textContent='هنوز فصلی برای این مانگا منتشر نشده.';
+  return;
+ }
+
+ const select=document.createElement('select');
+ select.id='readerChapterSelect';
+
+ for(const ch of chs){
+  const opt=document.createElement('option');
+  opt.value=ch.id;
+  opt.textContent=`فصل ${ch.chapter_number} — ${ch.title}`;
+  select.append(opt);
+ }
+
+ const btn=document.createElement('button');
+ btn.className='button';btn.textContent='خواندن فصل';
+ btn.onclick=()=>loadReaderChapter(select.value,chs.find(c=>c.id===select.value));
+ $('readerChapters').append(select,btn);
+ await loadReaderChapter(chs[0].id,chs[0]);
+}
+
+async function loadReaderChapter(chapterId,ch){
+ const area=$('readerContent');
+ area.textContent='در حال بارگذاری صفحات...';
+
+ const{data:pages,error}=await sb.from('manga_pages')
+  .select('id,file_path,file_type,page_number')
+  .eq('chapter_id',chapterId).order('page_number');
+
+ area.replaceChildren();
+
+ if(error){
+  area.textContent='بارگذاری صفحات ناموفق بود: '+error.message;
+  return;
+ }
+ if(!pages?.length){
+  area.textContent='این فصل هنوز صفحه یا PDF ندارد.';
+  return;
+ }
+
+ const heading=document.createElement('h3');
+ heading.textContent=`فصل ${ch.chapter_number} — ${ch.title}`;
+ area.append(heading);
+
+ for(const p of pages){
+  let url=p.file_path;
+  if(!/^https?:\/\//i.test(url)){
+   url=sb.storage.from('manga-files').getPublicUrl(url).data.publicUrl;
   }
 
-  function renderAccount() {
-    const loggedIn = !!currentUser;
-    $("loggedOutPanel").classList.toggle("hidden", loggedIn);
-    $("loggedInPanel").classList.toggle("hidden", !loggedIn);
-    $("profileEmail").textContent = loggedIn ? "ایمیل: " + (currentUser.email || "—") : "";
-    $("profileName").value = currentProfile?.display_name || "";
+  if(p.file_type==='pdf'||url.toLowerCase().split('?')[0].endsWith('.pdf')){
+   const frame=document.createElement('iframe');
+   frame.className='reader-pdf';frame.src=url;
+   frame.title='PDF '+ch.title;frame.loading='lazy';
+   area.append(frame);
+
+   const link=document.createElement('a');
+   link.href=url;link.target='_blank';link.rel='noopener';
+   link.textContent='اگر PDF نمایش داده نشد، اینجا بازش کن';
+   link.style.display='block';
+   area.append(link);
+  }else{
+   const img=document.createElement('img');
+   img.className='reader-page';img.src=url;
+   img.alt=`صفحه ${p.page_number}`;img.loading='lazy';
+   area.append(img);
   }
+ }
+}
 
-  function updateAuthUI() {
-    $("authStatus").textContent = currentUser
-      ? "وارد شده: " + (currentProfile?.display_name || currentUser.email || "کاربر")
-      : "مهمان";
-    $("publishLoginHint").classList.toggle("hidden", !!currentUser);
-    $("publishFormWrap").classList.toggle("hidden", !currentUser);
-    renderAccount();
-  }
-
-  async function refreshAuth() {
-    const { data, error } = await db.auth.getSession();
-    if (error) console.warn(error.message);
-    currentUser = data?.session?.user || null;
-    await loadProfile();
-    updateAuthUI();
-  }
-
-  $("signupForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const display_name = $("signupName").value.trim();
-    const email = $("signupEmail").value.trim();
-    const password = $("signupPassword").value;
-    if (!display_name) return showToast("نام نمایشی را وارد کن.", "error");
-    const { data, error } = await db.auth.signUp({
-      email, password, options:{ data:{ display_name } }
-    });
-    if (error) return showToast(failMessage(error), "error");
-
-    if (data.user && data.session) {
-      currentUser = data.user;
-      await loadProfile();
-      await db.from("profiles").upsert({ id:currentUser.id, display_name }, { onConflict:"id" });
-      await refreshAuth();
-      showToast("ثبت‌نام انجام شد.", "ok");
-      showView("publish");
-    } else {
-      showToast("ثبت‌نام ثبت شد. اگر تأیید ایمیل فعال است، ایمیلت را تأیید کن و سپس وارد شو.", "ok");
-    }
-  });
-
-  $("loginForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const { data, error } = await db.auth.signInWithPassword({
-      email:$("loginEmail").value.trim(),
-      password:$("loginPassword").value
-    });
-    if (error) return showToast(failMessage(error), "error");
-    currentUser = data.user;
-    await loadProfile();
-    updateAuthUI();
-    await loadMangas();
-    showToast("با موفقیت وارد شدی.", "ok");
-    showView("publish");
-  });
-
-  $("logoutButton").addEventListener("click", async () => {
-    const { error } = await db.auth.signOut();
-    if (error) return showToast(failMessage(error), "error");
-    currentUser = null;
-    currentProfile = null;
-    updateAuthUI();
-    await loadMangas();
-    showToast("از حساب خارج شدی.", "ok");
-    showView("home");
-  });
-
-  $("profileForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    if (!currentUser) return showToast("ابتدا وارد حساب شو.", "error");
-    const display_name = $("profileName").value.trim();
-    if (!display_name) return showToast("نام نمایشی نمی‌تواند خالی باشد.", "error");
-    const { data, error } = await db.from("profiles")
-      .upsert({ id:currentUser.id, display_name }, { onConflict:"id" })
-      .select().single();
-    if (error) return showToast(failMessage(error), "error");
-    currentProfile = data;
-    updateAuthUI();
-    showToast("پروفایل ذخیره شد.", "ok");
-  });
-
-  async function loadMangas() {
-    $("latestMangas").innerHTML = '<div class="empty">در حال بارگذاری...</div>';
-    $("libraryMangas").innerHTML = '<div class="empty">در حال بارگذاری...</div>';
-    const { data, error } = await db.from("mangas")
-      .select("id,user_id,title,description,cover_url,created_at,genre")
-      .order("created_at", { ascending:false }).limit(500);
-    if (error) {
-      const msg = "بارگذاری مانگاها ناموفق بود: " + error.message;
-      $("latestMangas").innerHTML = `<div class="empty">${escapeHtml(msg)}</div>`;
-      $("libraryMangas").innerHTML = `<div class="empty">${escapeHtml(msg)}</div>`;
-      return;
-    }
-    mangas = data || [];
-    renderLatest();
-    renderLibrary();
-    renderMyMangas();
-  }
-
-  function mangaCard(m) {
-    const cover = m.cover_url || "";
-    const owned = isOwner(m);
-    return `
-      <article class="card">
-        <img class="cover" src="${escapeHtml(cover)}" alt="جلد ${escapeHtml(m.title)}"
-          loading="lazy" onerror="this.style.display='none'">
-        <div class="card-body">
-          <h3>${escapeHtml(m.title)}</h3>
-          <div class="muted">${escapeHtml(m.genre || "بدون ژانر")}</div>
-          <p>${escapeHtml((m.description || "توضیحی ثبت نشده است.").slice(0,160))}</p>
-          <div class="actions">
-            <button onclick="openReader('${escapeHtml(m.id)}')">مشاهده و مطالعه</button>
-            ${owned ? `<button class="secondary" onclick="manageManga('${escapeHtml(m.id)}')">مدیریت</button>` : ""}
-            ${owned ? `<button class="danger" onclick="deleteManga('${escapeHtml(m.id)}')">حذف</button>` : ""}
-          </div>
-        </div>
-      </article>`;
-  }
-
-  function renderLatest() {
-    const list = mangas.slice(0, 6);
-    $("latestMangas").innerHTML = list.length
-      ? list.map(mangaCard).join("")
-      : '<div class="empty">هنوز مانگایی منتشر نشده است.</div>';
-  }
-
-  function renderLibrary() {
-    const q = ($("searchInput").value || "").trim().toLocaleLowerCase();
-    const list = mangas.filter(m => [m.title,m.description,m.genre].join(" ").toLocaleLowerCase().includes(q));
-    $("libraryMangas").innerHTML = list.length
-      ? list.map(mangaCard).join("")
-      : '<div class="empty">مانگایی با این عبارت پیدا نشد.</div>';
-  }
-
-  $("searchInput").addEventListener("input", renderLibrary);
-
-  function renderMyMangas() {
-    const mine = mangas.filter(isOwner);
-    $("myMangas").innerHTML = mine.length
-      ? mine.map(mangaCard).join("")
-      : '<div class="empty">هنوز مانگایی منتشر نکرده‌ای.</div>';
-  }
-
-  $("mangaForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    if (!currentUser) return showToast("ابتدا وارد حساب شو.", "error");
-    const title = $("mangaTitle").value.trim();
-    const description = $("mangaDescription").value.trim();
-    const genre = $("mangaGenre").value.trim();
-    const coverFile = $("mangaCover").files[0];
-    if (!title) return showToast("عنوان مانگا الزامی است.", "error");
-
-    let cover_url = null;
-    if (coverFile) {
-      if (!coverFile.type.startsWith("image/")) return showToast("جلد باید تصویر باشد.", "error");
-      const path = `${currentUser.id}/covers/${crypto.randomUUID()}-${safeFileName(coverFile.name)}`;
-      const { error:uploadError } = await db.storage.from(BUCKET).upload(path, coverFile, {
-        upsert:false, contentType:coverFile.type
-      });
-      if (uploadError) return showToast("آپلود جلد ناموفق بود: " + uploadError.message, "error");
-      cover_url = publicFileUrl(path);
-    }
-
-    const { data, error } = await db.from("mangas").insert({
-      user_id:currentUser.id, title, description, genre, cover_url
-    }).select().single();
-
-    if (error) {
-      showToast("ذخیرهٔ مانگا ناموفق بود: " + error.message, "error");
-      return;
-    }
-    $("mangaForm").reset();
-    await loadMangas();
-    showToast("مانگا منتشر شد.", "ok");
-    await manageManga(data.id);
-  });
-
-  window.manageManga = async function(mangaId) {
-    const manga = mangas.find(m => String(m.id) === String(mangaId));
-    if (!manga) return showToast("مانگا پیدا نشد.", "error");
-    if (!isOwner(manga)) return showToast("فقط صاحب مانگا می‌تواند آن را مدیریت کند.", "error");
-    const title = prompt("عنوان مانگا:", manga.title);
-    if (title === null) return;
-    if (!title.trim()) return showToast("عنوان نمی‌تواند خالی باشد.", "error");
-    const description = prompt("توضیحات:", manga.description || "");
-    if (description === null) return;
-    const genre = prompt("ژانر:", manga.genre || "");
-    if (genre === null) return;
-
-    const { error } = await db.from("mangas").update({
-      title:title.trim(), description:description.trim(), genre:genre.trim()
-    }).eq("id", manga.id).eq("user_id", currentUser.id);
-    if (error) return showToast("ویرایش ناموفق بود: " + error.message, "error");
-    await loadMangas();
-    showToast("اطلاعات مانگا به‌روزرسانی شد.", "ok");
-  };
-
-  async function getChapters(mangaId) {
-    const { data, error } = await db.from("manga_chapters")
-      .select("id,manga_id,title,chapter_number,created_at")
-      .eq("manga_id", mangaId).order("chapter_number", { ascending:true });
-    if (error) throw error;
-    return data || [];
-  }
-
-  async function getPages(chapterId) {
-    const { data, error } = await db.from("manga_pages")
-      .select("id,chapter_id,file_path,file_type,page_number,created_at")
-      .eq("chapter_id", chapterId).order("page_number", { ascending:true });
-    if (error) throw error;
-    return data || [];
-  }
-
-  window.openReader = async function(mangaId) {
-    const manga = mangas.find(m => String(m.id) === String(mangaId));
-    if (!manga) return showToast("مانگا پیدا نشد.", "error");
-    readerManga = manga;
-    $("readerTitle").textContent = manga.title;
-    $("readerSubtitle").textContent = manga.genre || "";
-    $("reader").classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-    $("readerChapterSelect").innerHTML = "";
-    $("readerContent").innerHTML = '<div class="empty">در حال بارگذاری فصل‌ها...</div>';
-
-    try {
-      const chapters = await getChapters(manga.id);
-      if (!chapters.length) {
-        $("readerContent").innerHTML = '<div class="empty">هنوز فصلی برای این مانگا ثبت نشده است.</div>';
-        return;
-      }
-      $("readerChapterSelect").innerHTML = chapters.map(ch =>
-        `<option value="${escapeHtml(ch.id)}">${escapeHtml(ch.title)} — فصل ${escapeHtml(ch.chapter_number)}</option>`
-      ).join("");
-      $("readerChapterSelect").onchange = () => loadReaderChapter($("readerChapterSelect").value);
-      await loadReaderChapter(chapters[0].id);
-    } catch (error) {
-      $("readerContent").innerHTML = `<div class="empty">${escapeHtml(failMessage(error))}</div>`;
-    }
-  };
-
-  async function loadReaderChapter(chapterId) {
-    $("readerContent").innerHTML = '<div class="empty">در حال بارگذاری صفحات...</div>';
-    try {
-      const pages = await getPages(chapterId);
-      if (!pages.length) {
-        $("readerContent").innerHTML = '<div class="empty">این فصل هنوز صفحه‌ای ندارد.</div>';
-        return;
-      }
-      $("readerContent").innerHTML = pages.map(page => {
-        const url = publicFileUrl(page.file_path);
-        const isPdf = String(page.file_type || "").toLowerCase().includes("pdf");
-        return isPdf
-          ? `<div class="chapter-row"><p>فایل PDF فصل</p><a href="${escapeHtml(url)}" target="_blank" rel="noopener">باز کردن PDF</a><iframe class="reader-pdf" src="${escapeHtml(url)}#toolbar=1" title="مطالعهٔ PDF"></iframe></div>`
-          : `<img class="reader-page" src="${escapeHtml(url)}" alt="صفحه ${escapeHtml(page.page_number)}" loading="lazy">`;
-      }).join("");
-    } catch (error) {
-      $("readerContent").innerHTML = `<div class="empty">${escapeHtml(failMessage(error))}</div>`;
-    }
-  }
-
-  window.closeReader = function() {
-    $("reader").classList.add("hidden");
-    $("readerContent").innerHTML = "";
-    document.body.style.overflow = "";
-    readerManga = null;
-  };
-
-  async function uploadChapterFiles(manga, chapter, files) {
-    const uploadedPaths = [];
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-        if (!isPdf && !file.type.startsWith("image/")) {
-          throw new Error(`نوع فایل «${file.name}» پشتیبانی نمی‌شود. فقط تصویر یا PDF انتخاب کن.`);
-        }
-        if (isPdf && files.length > 1) {
-          throw new Error("فایل PDF را به‌تنهایی برای یک فصل انتخاب کن، یا چند تصویر صفحه را با هم آپلود کن.");
-        }
-        const path = `${currentUser.id}/${manga.id}/${chapter.id}/${crypto.randomUUID()}-${safeFileName(file.name)}`;
-        const { error:uploadError } = await db.storage.from(BUCKET).upload(path, file, {
-          upsert:false, contentType:file.type || (isPdf ? "application/pdf" : "application/octet-stream")
-        });
-        if (uploadError) throw uploadError;
-        uploadedPaths.push(path);
-        const { error:insertError } = await db.from("manga_pages").insert({
-          chapter_id:chapter.id, file_path:path,
-          file_type:isPdf ? "application/pdf" : file.type,
-          page_number:i + 1
-        });
-        if (insertError) throw insertError;
-      }
-      return uploadedPaths;
-    } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
-    }
-  }
-
-  window.addChapter = async function(mangaId) {
-    const manga = mangas.find(m => String(m.id) === String(mangaId));
-    if (!manga || !isOwner(manga)) return showToast("اجازهٔ مدیریت این مانگا را نداری.", "error");
-
-    let chapters;
-    try { chapters = await getChapters(manga.id); }
-    catch (error) { return showToast(failMessage(error), "error"); }
-
-    const defaultNum = chapters.length ? Math.max(...chapters.map(c => Number(c.chapter_number) || 0)) + 1 : 1;
-    const title = prompt("عنوان فصل:", `فصل ${defaultNum}`);
-    if (title === null) return;
-    const numberText = prompt("شمارهٔ فصل:", String(defaultNum));
-    if (numberText === null) return;
-    const chapter_number = Number(numberText);
-    if (!Number.isFinite(chapter_number) || chapter_number < 0) return showToast("شمارهٔ فصل معتبر نیست.", "error");
-
-    const { data:chapter, error } = await db.from("manga_chapters").insert({
-      manga_id:manga.id, title:title.trim() || `فصل ${chapter_number}`, chapter_number
-    }).select().single();
-    if (error) return showToast("ساخت فصل ناموفق بود: " + error.message, "error");
-
-    const picker = document.createElement("input");
-    picker.type = "file";
-    picker.multiple = true;
-    picker.accept = "image/*,application/pdf,.pdf";
-    picker.onchange = async () => {
-      const files = Array.from(picker.files || []);
-      if (!files.length) {
-        showToast("فصل ساخته شد؛ می‌توانی بعداً از مدیریت فصل فایل اضافه کنی.", "ok");
-        await renderChapterManagement(manga);
-        return;
-      }
-      try {
-        await uploadChapterFiles(manga, chapter, files);
-        showToast("فصل و فایل‌ها ذخیره شدند.", "ok");
-      } catch (uploadError) {
-        showToast("فصل ساخته شد اما آپلود کامل نشد: " + failMessage(uploadError), "error");
-      }
-      await renderChapterManagement(manga);
-    };
-    picker.click();
-  };
-
-  async function deleteStoredFiles(paths) {
-    const clean = [...new Set(paths.filter(Boolean))];
-    for (let i = 0; i < clean.length; i += 100) {
-      const { error } = await db.storage.from(BUCKET).remove(clean.slice(i, i + 100));
-      if (error) throw error;
-    }
-  }
-
-  window.deleteManga = async function(mangaId) {
-    const manga = mangas.find(m => String(m.id) === String(mangaId));
-    if (!manga || !isOwner(manga)) return showToast("فقط صاحب مانگا می‌تواند آن را حذف کند.", "error");
-    if (!confirm(`مانگای «${manga.title}» و تمام فصل‌ها و صفحاتش حذف شود؟ این کار برگشت‌پذیر نیست.`)) return;
-
-    try {
-      const chapters = await getChapters(manga.id);
-      const allPaths = [];
-      for (const chapter of chapters) {
-        const pages = await getPages(chapter.id);
-        allPaths.push(...pages.map(p => p.file_path));
-      }
-
-      // Storage paths are removed before database rows, so an authorization failure
-      // stops the operation instead of silently leaving orphaned files.
-      await deleteStoredFiles(allPaths);
-
-      for (const chapter of chapters) {
-        const { error:pageError } = await db.from("manga_pages").delete().eq("chapter_id", chapter.id);
-        if (pageError) throw pageError;
-      }
-      const { error:chaptersError } = await db.from("manga_chapters").delete().eq("manga_id", manga.id);
-      if (chaptersError) throw chaptersError;
-      const { error:mangaError } = await db.from("mangas").delete().eq("id", manga.id).eq("user_id", currentUser.id);
-      if (mangaError) throw mangaError;
-
-      await loadMangas();
-      showToast("مانگا و فصل‌هایش حذف شدند.", "ok");
-    } catch (error) {
-      showToast("حذف کامل نشد؛ لطفاً مجوزهای Storage و RLS را بررسی کن. " + failMessage(error), "error");
-    }
-  };
-
-  async function renderChapterManagement(manga) {
-    const host = $("myMangas");
-    const mine = mangas.filter(isOwner);
-    host.innerHTML = mine.map(m =>
-      `<article class="card"><div class="card-body">
-        <h3>${escapeHtml(m.title)}</h3>
-        <p class="muted">${escapeHtml(m.genre || "")}</p>
-        <div class="actions">
-          <button onclick="openReader('${escapeHtml(m.id)}')">مطالعه</button>
-          <button class="secondary" onclick="manageManga('${escapeHtml(m.id)}')">ویرایش</button>
-          <button class="secondary" onclick="addChapter('${escapeHtml(m.id)}')">افزودن فصل</button>
-          <button class="secondary" onclick="showChapters('${escapeHtml(m.id)}')">مدیریت فصل‌ها</button>
-          <button class="danger" onclick="deleteManga('${escapeHtml(m.id)}')">حذف مانگا</button>
-        </div>
-      </div></article>`
-    ).join("") || '<div class="empty">هنوز مانگایی منتشر نکرده‌ای.</div>';
-  }
-
-  window.showChapters = async function(mangaId) {
-    const manga = mangas.find(m => String(m.id) === String(mangaId));
-    if (!manga || !isOwner(manga)) return showToast("اجازهٔ مدیریت این مانگا را نداری.", "error");
-    try {
-      const chapters = await getChapters(manga.id);
-      const host = $("myMangas");
-      const html = `
-        <div class="panel" style="grid-column:1/-1">
-          <h2>مدیریت فصل‌ها: ${escapeHtml(manga.title)}</h2>
-          <button onclick="addChapter('${escapeHtml(manga.id)}')">افزودن فصل و آپلود فایل</button>
-          ${chapters.length ? chapters.map(ch => `
-            <div class="chapter-row">
-              <div class="chapter-top">
-                <div><strong>${escapeHtml(ch.title)}</strong><div class="muted">فصل ${escapeHtml(ch.chapter_number)}</div></div>
-                <div class="actions">
-                  <button class="secondary" onclick="addFilesToChapter('${escapeHtml(manga.id)}','${escapeHtml(ch.id)}')">افزودن صفحات</button>
-                  <button class="secondary" onclick="renameChapter('${escapeHtml(ch.id)}')">ویرایش فصل</button>
-                  <button class="danger" onclick="deleteChapter('${escapeHtml(manga.id)}','${escapeHtml(ch.id)}')">حذف فصل</button>
-                </div>
-              </div>
-            </div>`).join("") : '<div class="empty">هنوز فصلی وجود ندارد.</div>'}
-          <button class="secondary" onclick="renderMyMangas()">بازگشت به مانگاهای من</button>
-        </div>`;
-      host.innerHTML = html;
-    } catch (error) {
-      showToast(failMessage(error), "error");
-    }
-  };
-
-  window.addFilesToChapter = async function(mangaId, chapterId) {
-    const manga = mangas.find(m => String(m.id) === String(mangaId));
-    if (!manga || !isOwner(manga)) return showToast("اجازهٔ انجام این کار را نداری.", "error");
-    const picker = document.createElement("input");
-    picker.type = "file";
-    picker.multiple = true;
-    picker.accept = "image/*,application/pdf,.pdf";
-    picker.onchange = async () => {
-      const files = Array.from(picker.files || []);
-      if (!files.length) return;
-      try {
-        const chapters = await getChapters(manga.id);
-        const chapter = chapters.find(c => String(c.id) === String(chapterId));
-        if (!chapter) throw new Error("فصل پیدا نشد.");
-        const existing = await getPages(chapter.id);
-        if (files.some(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) && existing.length) {
-          throw new Error("برای افزودن PDF به این فصل، ابتدا صفحات فعلی را حذف کن.");
-        }
-        await uploadChapterFiles(manga, chapter, files);
-        showToast("صفحات اضافه شدند.", "ok");
-        await showChapters(manga.id);
-      } catch (error) {
-        showToast("آپلود ناموفق بود: " + failMessage(error), "error");
-      }
-    };
-    picker.click();
-  };
-
-  window.renameChapter = async function(chapterId) {
-    try {
-      const { data:chapter, error:readError } = await db.from("manga_chapters")
-        .select("id,manga_id,title,chapter_number").eq("id", chapterId).single();
-      if (readError) throw readError;
-      const manga = mangas.find(m => String(m.id) === String(chapter.manga_id));
-      if (!manga || !isOwner(manga)) throw new Error("اجازهٔ ویرایش این فصل را نداری.");
-      const title = prompt("عنوان فصل:", chapter.title);
-      if (title === null) return;
-      const numberText = prompt("شمارهٔ فصل:", String(chapter.chapter_number));
-      if (numberText === null) return;
-      const chapter_number = Number(numberText);
-      if (!Number.isFinite(chapter_number) || chapter_number < 0) throw new Error("شمارهٔ فصل معتبر نیست.");
-      const { error } = await db.from("manga_chapters").update({
-        title:title.trim() || chapter.title, chapter_number
-      }).eq("id", chapter.id);
-      if (error) throw error;
-      showToast("فصل ویرایش شد.", "ok");
-      await showChapters(manga.id);
-    } catch (error) { showToast(failMessage(error), "error"); }
-  };
-
-  window.deleteChapter = async function(mangaId, chapterId) {
-    const manga = mangas.find(m => String(m.id) === String(mangaId));
-    if (!manga || !isOwner(manga)) return showToast("اجازهٔ حذف این فصل را نداری.", "error");
-    if (!confirm("این فصل و تمام صفحاتش حذف شوند؟")) return;
-    try {
-      const pages = await getPages(chapterId);
-      await deleteStoredFiles(pages.map(p => p.file_path));
-      const { error:pagesError } = await db.from("manga_pages").delete().eq("chapter_id", chapterId);
-      if (pagesError) throw pagesError;
-      const { error:chapterError } = await db.from("manga_chapters").delete()
-        .eq("id", chapterId).eq("manga_id", manga.id);
-      if (chapterError) throw chapterError;
-      showToast("فصل حذف شد.", "ok");
-      await showChapters(manga.id);
-    } catch (error) {
-      showToast("حذف فصل ناموفق بود: " + failMessage(error), "error");
-    }
-  };
-
-  async function loadUsers() {
-    const host = $("usersList");
-    host.innerHTML = '<div class="empty">در حال بارگذاری کاربران...</div>';
-    const { data:profiles, error } = await db.from("profiles")
-      .select("id,display_name,created_at").order("created_at", { ascending:false }).limit(300);
-    if (error) {
-      host.innerHTML = `<div class="empty">فهرست کاربران بارگذاری نشد: ${escapeHtml(error.message)}<br>جدول profiles و سیاست خواندن عمومی آن را بررسی کن.</div>`;
-      return;
-    }
-    if (!profiles?.length) {
-      host.innerHTML = '<div class="empty">هنوز پروفایل عمومی ثبت نشده است.</div>';
-      return;
-    }
-
-    const cards = [];
-    for (const profile of profiles) {
-      const { data:works, error:worksError } = await db.from("mangas")
-        .select("id,title,description,cover_url,genre,created_at,user_id")
-        .eq("user_id", profile.id).order("created_at", { ascending:false }).limit(30);
-      cards.push(`
-        <div class="user-row">
-          <h3>${escapeHtml(profile.display_name || "مانگاکا")}</h3>
-          <div class="muted">عضویت: ${profile.created_at ? escapeHtml(new Date(profile.created_at).toLocaleDateString("fa-IR")) : "—"}</div>
-          ${worksError ? '<p class="muted">آثار این کاربر فعلاً بارگذاری نشد.</p>' :
-            works?.length ? `<div class="grid">${works.map(mangaCard).join("")}</div>` :
-            '<p class="muted">هنوز مانگایی منتشر نکرده است.</p>'}
-        </div>`);
-    }
-    host.innerHTML = cards.join("");
-  }
-
-  async function init() {
-    await refreshAuth();
-    await loadMangas();
-    db.auth.onAuthStateChange((_event, session) => {
-      setTimeout(async () => {
-        currentUser = session?.user || null;
-        await loadProfile();
-        updateAuthUI();
-        await loadMangas();
-      }, 0);
-    });
-  }
-
-  window.renderMyMangas = renderMyMangas;
-  init().catch(error => {
-    console.error(error);
-    showToast("اتصال اولیه به Supabase ناموفق بود: " + failMessage(error), "error");
-  });
+(async()=>{
+ try{
+  const{data,error}=await sb.auth.getSession();
+  if(error)showMessage('authMessage','خطا: '+error.message);
+  updateUser(data?.session?.user||null);
+  await loadMangas();
+ }catch(e){
+  console.error(e);
+  showMessage('authMessage','خطا در اتصال: '+e.message);
+ }
 })();
 </script>
 </body>
