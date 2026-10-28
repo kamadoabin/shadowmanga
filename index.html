@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShadowManga | دنیای داستان‌ها</title>
+
+  <style>
+    :root {
+      --bg: #0c0a12;
+      --panel: #171321;
+      --purple: #a78bfa;
+      --red: #fb7185;ّ
+      --text: #f7f2ff;
+      --muted: #b8adc9;
+      --line: #382c4b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: radial-gradient(ellipse at top, #241337, var(--bg) 65%);
+      color: var(--text);
+      line-height: 1.8;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, input, textarea, select {
+      font-family: inherit;
+    }
+
+    .container {
+      width: min(1100px, 92%);
+      margin: auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #0c0a12ed;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 15px 0;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: var(--red);
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--muted);
+    }
+
+    nav a:hover {
+      color: var(--purple);
+    }
+
+    .button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 17px;
+      background: linear-gradient(120deg, var(--purple), #f0abfc);
+      color: #100b19;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      opacity: 0.85;
+    }
+
+    .secondary {
+      background: #241b33;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    .hero {
+      padding: 65px 0;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .eyebrow {
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 55px);
+      line-height: 1.5;
+      margin: 10px 0;
+    }
+
+    h1 span {
+      color: var(--purple);
+    }
+
+    .description {
+      color: var(--muted);
+    }
+
+    .hero-art {
+      min-height: 270px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 25px;
+      border: 1px solid var(--line);
+      border-radius: 25px;
+      background: linear-gradient(145deg, #39224f, #171321, #401c35);
+    }
+
+    .symbol {
+      font-size: 80px;
+      color: var(--purple);
+      text-shadow: 0 0 30px #a78bfa88;
+    }
+
+    section {
+      padding: 25px 0;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .search {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #100d18;
+      color: white;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--purple);
+    }
+
+    .manga-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .manga-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .manga-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--purple);
+    }
+
+    .cover {
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      font-size: 65px;
+      background: linear-gradient(135deg, #402554, #171321, #4b1d37);
+    }
+
+    .card-content {
+      padding: 17px;
+    }
+
+    .card-content h3 {
+      margin-top: 0;
+    }
+
+    .card-content p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 3px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: #30223f;
+      color: #dfccff;
+      font-size: 12px;
+    }
+
+    .community {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .community-card {
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .notice {
+      padding: 15px;
+      border-right: 4px solid var(--red);
+      background: #241522;
+      border-radius: 8px;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 25px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: #000c;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      width: min(500px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close {
+      color: white;
+      background: transparent;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 5px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .empty {
+      display: none;
+      color: var(--muted);
+      padding: 20px;
+    }
+
+    @media (max-width: 750px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 40px 0;
+      }
+
+      .manga-grid,
+      .community {
+        grid-template-columns: 1fr;
+      }
+
+      .search {
+        flex-direction: column;
+      }
+
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container navbar">
+    <a href="#" class="logo"><span>Shadow</span>Manga</a>
+
+    <nav>
+      <a href="#manga">مانگاها</a>
+      <a href="#updates">تازه‌ها</a>
+      <a href="#community">انجمن</a>
+      <a href="#about">درباره ما</a>
+    </nav>
+
+    <button class="button" id="openForm">＋ انتشار مانگا</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">دنیای داستان‌های تو</div>
+
+      <h1>
+        داستانت رو بنویس،
+        <span>جهانت رو بساز!</span>
+      </h1>
+
+      <p class="description">
+        به ShadowManga خوش اومدی؛ جایی برای کشف مانگاهای جدید،
+        دنبال‌کردن داستان‌ها و ارتباط با نویسنده‌ها و خواننده‌ها.
+      </p>
+
+      <button class="button" onclick="document.getElementById('manga').scrollIntoView({behavior:'smooth'})">
+        کشف مانگاها
+      </button>
+
+      <button class="button secondary" id="openForm2">
+        انتشار داستان من
+      </button>
+    </div>
+
+    <div class="hero-art">
+      <div>
+        <div class="symbol">影 ✦</div>
+        <h2>هر داستان، یک جهان تازه</h2>
+        <p class="muted">جهان خودت رو خلق کن.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="manga">
+    <h2>📚 مانگاهای پیشنهادی</h2>
+    <p class="muted">داستان‌های محبوب و تازه رو کشف کن.</p>
+
+    <div class="search">
+      <input id="searchInput" type="search" placeholder="اسم مانگا رو جست‌وجو کن...">
+      <button class="button secondary" id="clearSearch">پاک کردن</button>
+    </div>
+
+    <div class="manga-grid" id="mangaGrid">
+
+      <article class="manga-card" data-title="سایه شیاطین">
+        <div class="cover">☯</div>
+        <div class="card-content">
+          <h3>سایه شیاطین</h3>
+          <p>داستان آبین کنتاجورو؛ پسری میان انسان‌ها، نیمه‌خدایان و شیاطین.</p>
+          <span class="tag">فانتزی تاریک</span>
+          <span class="tag">در حال ساخت</span>
+        </div>
+      </article>
+
+      <article class="manga-card" data-title="آخرین ستاره">
+        <div class="cover">✦</div>
+        <div class="card-content">
+          <h3>آخرین ستاره</h3>
+          <p>در جهانی خاموش، یک ستاره هنوز برای نجات مردم می‌درخشد.</p>
+          <span class="tag">ماجراجویی</span>
+          <span class="tag">نمونه</span>
+        </div>
+      </article>
+
+      <article class="manga-card" data-title="شهر بی خواب">
+        <div class="cover">月</div>
+        <div class="card-content">
+          <h3>شهر بی‌خواب</h3>
+          <p>شهری که خاطرات ساکنانش هر شب به شکل عجیبی تغییر می‌کند.</p>
+          <span class="tag">معمایی</span>
+          <span class="tag">نمونه</span>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="empty" id="emptySearch">
+      مانگایی با این عنوان پیدا نشد.
+    </div>
+  </section>
+
+  <section id="updates">
+    <h2>📰 آخرین خبرها</h2>
+    <p class="muted">خبرهای انتشار فصل‌ها و پیشرفت داستان‌ها در این بخش قرار می‌گیرند.</p>
+
+    <div class="notice">
+      این نسخه آزمایشی است. برای انتشار آنلاین، حساب کاربری و ذخیره دائمی اطلاعات،
+      باید سرور و پایگاه داده به سایت اضافه کنیم.
+    </div>
+  </section>
+
+  <section id="community">
+    <h2>🌐 انجمن داستان‌سازها</h2>
+    <p class="muted">جامعه‌ای برای نویسنده‌ها، هنرمندها و طرفداران مانگا.</p>
+
+    <div class="community">
+      <div class="community-card">
+        <h3>✍️ نویسنده‌ها</h3>
+        <p class="muted">
+          در نسخه‌های آینده هر کاربر می‌تواند صفحه شخصی بسازد،
+          مانگا منتشر کند و پیشرفت داستانش را به اشتراک بگذارد.
+        </p>
+      </div>
+
+      <div class="community-card">
+        <h3>💬 گروه‌ها و گفت‌وگو</h3>
+        <p class="muted">
+          قرار است امکان ساخت گروه، انتخاب مدیر، نوشتن نظر و پاسخ به دیگران
+          را اضافه کنیم.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <h2>درباره ShadowManga</h2>
+    <p class="description">
+      هدف ما ساخت فضایی برای انتشار داستان‌های خلاقانه و ایجاد ارتباط
+      میان نویسنده‌ها و خواننده‌هاست.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    ShadowManga © نسخه آزمایشی
+    <br>
+    ساخته‌شده برای شروع یک جهان تازه 💜
+  </div>
+</footer>
+
+<div class="modal" id="mangaModal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h2>انتشار مانگا</h2>
+      <button class="close" id="closeForm" aria-label="بستن">×</button>
+    </div>
+
+    <p class="muted">
+      این فرم فعلاً آزمایشی است؛ اطلاعات فقط تا زمان تازه‌سازی صفحه باقی می‌ماند.
+    </p>
+
+    <form id="mangaForm">
+      <label for="titleInput">عنوان مانگا</label>
+      <input id="titleInput" required maxlength="70" placeholder="اسم داستانت">
+
+      <label for="descriptionInput">توضیحات</label>
+      <textarea id="descriptionInput" required maxlength="240" rows="3"
+        placeholder="داستانت درباره چیه؟"></textarea>
+
+      <label for="genreInput">ژانر</label>
+      <select id="genreInput">
+        <option>فانتزی</option>
+        <option>اکشن</option>
+        <option>ماجراجویی</option>
+        <option>معمایی</option>
+        <option>درام</option>
+        <option>ترسناک</option>
+      </select>
+
+<div class="form-group">
+  <label for="coverInput">تصویر کاور مانگا</label>
+  <input
+    type="file"
+    id="coverInput"
+    accept="image/*"
+  >
+</div>
+
+      <div class="form-actions">
+        <button type="submit" class="button">افزودن مانگا</button>
+        <button type="button" class="button secondary" id="cancelForm">انصراف</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+  
+<script>
+  const modal = document.getElementById("mangaModal");
+  const form = document.getElementById("mangaForm");
+  const grid = document.getElementById("mangaGrid");
+  const searchInput = document.getElementById("searchInput");
+  const emptySearch = document.getElementById("emptySearch");
+
+  const STORAGE_KEY = "shadowMangaItems";
+
+  function openModal() {
+    modal.classList.add("open");
+    document.getElementById("titleInput").focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove("open");
+    form.reset();
+  }
+
+  function createMangaCard(manga) {
+    const card = document.createElement("article");
+    card.className = "manga-card";
+    card.dataset.title = manga.title.toLocaleLowerCase("fa");
+
+    
+    const cover = document.createElement("div");
+    cover.className = "cover";
+
+    if (manga.cover) {
+      const image = document.createElement("img");
+      image.src = manga.cover;
+      image.alt = "کاور " + manga.title;
+      image.style.width = "100%";
+      image.style.height = "100%";
+      image.style.objectFit = "cover";
+      cover.appendChild(image);
+    } else {
+      cover.textContent = "✧";
+    }
+
+
+    const content = document.createElement("div");
+    content.className = "card-content";
+
+    const heading = document.createElement("h3");
+    heading.textContent = manga.title;
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = manga.description;
+
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = manga.genre;
+
+    content.append(heading, paragraph, tag);
+    card.append(cover, content);
+
+    return card;
+  }
+
+  function getSavedMangas() {
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function applySearch() {
+    const query = searchInput.value.trim().toLocaleLowerCase("fa");
+    let visibleCount = 0;
+
+    grid.querySelectorAll(".manga-card").forEach(function(card) {
+      const title = (card.dataset.title || "").toLocaleLowerCase("fa");
+      const visible = title.includes(query);
+
+      card.style.display = visible ? "" : "none";
+      if (visible) visibleCount++;
+    });
+
+    emptySearch.style.display = visibleCount ? "none" : "block";
+  }
+
+  document.getElementById("openForm").addEventListener("click", openModal);
+  document.getElementById("openForm2").addEventListener("click", openModal);
+  document.getElementById("closeForm").addEventListener("click", closeModal);
+  document.getElementById("cancelForm").addEventListener("click", closeModal);
+
+  modal.addEventListener("click", function(event) {
+    if (event.target === modal) closeModal();
+  });
+
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") closeModal();
+  });
+
+  form.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const title = document.getElementById("titleInput").value.trim();
+    const description = document.getElementById("descriptionInput").value.trim();
+    const genre = document.getElementById("genreInput").value;
+
+    if (!title || !description) return;
+
+    const manga = { title, description, genre };
+    const savedMangas = getSavedMangas();
+
+    savedMangas.unshift(manga);
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedMangas));
+    } catch (error) {
+      alert("ذخیره‌سازی انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کن.");
+      return;
+    }
+
+    grid.prepend(createMangaCard(manga));
+    closeModal();
+    applySearch();
+
+    document.getElementById("manga").scrollIntoView({
+      behavior: "smooth"
+    });
+  });
+
+  searchInput.addEventListener("input", applySearch);
+
+  document.getElementById("clearSearch").addEventListener("click", function() {
+    searchInput.value = "";
+    applySearch();
+    searchInput.focus();
+  });
+
+  getSavedMangas().slice().reverse().forEach(function(manga) {
+    if (manga && manga.title && manga.description) {
+      grid.prepend(createMangaCard(manga));
+    }
+  });
+
+  applySearch();
+</script>
+
+</script>
+
+</body>
+</html>
