@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShadowChat</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0b0911;
+      --panel: #14101d;
+      --panel2: #1d1729;
+      --purple: #9b5cff;
+      --text: #f4efff;
+      --muted: #a79bb8;
+      --border: #30243f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Tahoma, Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: var(--purple);
+      color: white;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand { font-size: 23px; font-weight: bold; }
+    .brand span { color: var(--purple); }
+    .status { color: var(--muted); font-size: 12px; margin-top: 5px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      height: calc(100dvh - 72px);
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-left: 1px solid var(--border);
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .search, .message-input {
+      width: 100%;
+      color: var(--text);
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      outline: none;
+    }
+
+    .search:focus, .message-input:focus {
+      border-color: var(--purple);
+    }
+
+    .section-title { margin: 20px 0 12px; color: var(--muted); }
+
+    .chat-placeholder {
+      padding: 18px 12px;
+      color: var(--muted);
+      line-height: 2;
+      background: var(--panel2);
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .welcome {
+      margin: auto;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 2.2;
+    }
+
+    .orb {
+      width: 76px;
+      height: 76px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #d8baff, #8e45f6 45%, #35135d);
+      box-shadow: 0 0 40px #8b43ff44;
+    }
+
+    .welcome h1 { color: var(--text); font-size: 24px; }
+    .welcome strong { color: var(--purple); }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .composer {
+      display: flex;
+      gap: 10px;
+      padding: 14px;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .composer button { white-space: nowrap; }
+
+    .login-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.9;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .layout { grid-template-columns: 1fr; height: auto; }
+      .sidebar { border-left: 0; border-bottom: 1px solid var(--border); }
+      .main { min-height: 55vh; }
+      .topbar { padding: 14px; }
+      .brand { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="brand">Shadow<span>Chat</span> 💜</div>
+      <div class="status" id="accountStatus">در حال بررسی حساب...</div>
+    </div>
+    <button id="backButton" type="button">بازگشت به سایت</button>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <input id="search" class="search" type="search"
+             placeholder="جست‌وجوی گفتگوها..." disabled>
+
+      <div class="section-title">گفتگوهای من</div>
+      <div class="chat-placeholder" id="chatList">
+        هنوز گفتگویی نمایش داده نمی‌شود.
+        <br>بعد از اتصال بخش گفتگوها، اینجا ظاهر می‌شوند.
+      </div>
+
+      <div class="login-note" id="loginNote">
+        برای استفاده از پیام‌رسان، باید با حساب ShadowManga وارد شده باشی.
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="welcome" id="welcome">
+        <div class="orb"></div>
+        <h1>به ShadowChat خوش اومدی</h1>
+        <p>ارتباط بین سایه‌ها، در یک دنیای تازه.</p>
+        <p>تم مشکی و بنفش؛ شروع یک پیام‌رسان جدید.</p>
+        <strong>به‌زودی: پیام خصوصی و گفتگوهای زنده</strong>
+      </div>
+
+      <div class="messages" id="messages" hidden></div>
+
+      <form class="composer" id="composer" hidden>
+        <input class="message-input" placeholder="پیامت را بنویس..."
+               disabled aria-label="پیام">
+        <button type="submit" disabled>ارسال</button>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    // از همان پروژه Supabase سایت ShadowManga استفاده می‌شود.
+    const SUPABASE_URL = "https://urgxyiyrswmnnzebxewj.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_6Euo_NJSkgMC7m7ASeyyNg_hk3xPBFw";
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    document.getElementById("backButton").addEventListener("click", () => {
+      window.location.href = "./";
+    });
+
+    async function checkAccount() {
+      const status = document.getElementById("accountStatus");
+      const note = document.getElementById("loginNote");
+
+      try {
+        const { data: { session }, error } = await sb.auth.getSession();
+        if (error) throw error;
+
+        if (session) {
+          status.textContent = "حساب متصل است";
+          note.textContent = "ورود انجام شده؛ بخش گفتگوها در مرحله بعد متصل می‌شود.";
+        } else {
+          status.textContent = "هنوز وارد حساب نشده‌ای";
+          note.textContent = "ابتدا در ShadowManga وارد شو، سپس دوباره ShadowChat را باز کن.";
+        }
+      } catch (error) {
+        status.textContent = "بررسی حساب ناموفق بود";
+        note.textContent = "اتصال به سرویس حساب کاربری بررسی نشد. اتصال اینترنت را بررسی کن.";
+        console.error(error);
+      }
+    }
+
+    sb.auth.onAuthStateChange(() => checkAccount());
+    checkAccount();
+  </script>
+</body>
+</html>
