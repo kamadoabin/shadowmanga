@@ -94,6 +94,16 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 .market-empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;margin-top:15px}
 .market-price-note{padding:10px;border-radius:9px;background:#241522;color:var(--muted);font-size:13px}
 .order-card{padding:14px;margin:10px 0;background:#171321;border:1px solid var(--line);border-radius:12px}
+
+/* تمدید آگهی */
+.renewal-panel{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#100d18}
+.renewal-panel h3{margin:0 0 8px}
+.renewal-status{padding:9px 11px;border-radius:8px;margin:8px 0;background:#241b33}
+.renewal-active{border-right:4px solid #86efac}
+.renewal-expired{border-right:4px solid var(--red)}
+.renewal-history{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.renewal-history-item{padding:9px;margin:8px 0;border-radius:8px;background:#241b33;font-size:13px}
+.renewal-info{font-size:13px;color:var(--muted);margin:5px 0}
 @media(max-width:800px){.hero,.manga-grid,.community{grid-template-columns:1fr}.chat-compose{grid-template-columns:1fr}.navbar{align-items:flex-start}nav{justify-content:flex-start}.market-toolbar{grid-template-columns:1fr}}
 </style>
 </head>
@@ -142,7 +152,8 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 <p class="muted">آثار منتخب نویسندگان ShadowManga را اینجا پیدا کن.</p>
 <div class="market-intro">
 <strong>بازار نسخهٔ آزمایشی ShadowManga</strong>
-<p>خریدها در این نسخه آزمایشی هستند و هیچ پرداخت واقعی انجام نمی‌شود. سهم نویسنده و پلتفرم صرفاً محاسباتی است.</p>
+<p>خریدها و تمدیدها در این نسخه آزمایشی هستند و هیچ پرداخت واقعی انجام نمی‌شود. سهم نویسنده و پلتفرم صرفاً محاسباتی است.</p>
+<p>هر آگهی یک ماه اعتبار اولیه دارد. پس از آن، تمدید یک‌ماهه با مبلغ نمایشی ۱۰۰٬۰۰۰ تومان ثبت می‌شود.</p>
 </div>
 <div class="market-toolbar">
 <input id="marketSearch" type="search" placeholder="جست‌وجوی نام مانگا...">
@@ -214,10 +225,25 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 <p class="market-price-note">خرید آزمایشی است و هیچ پولی دریافت نمی‌شود.</p>
 <div class="actions" style="margin-top:14px"><button type="submit" class="button" id="marketSaveButton">ذخیره و انتشار</button></div>
 </form>
+
 <div id="marketExistingActions" class="market-modal-actions" hidden>
 <button type="button" class="button secondary" id="marketPauseBtn">توقف موقت عرضه</button>
 <button type="button" class="danger-button" id="marketDeleteBtn">حذف از بازار</button>
 </div>
+
+<!-- بخش تمدید -->
+<div id="renewalPanel" class="renewal-panel" hidden>
+<h3>📅 وضعیت اعتبار آگهی</h3>
+<div id="renewalStatus" class="renewal-status"></div>
+<p id="renewalExpiry" class="renewal-info"></p>
+<p class="renewal-info">هزینهٔ تمدید یک‌ماهه: <strong>۱۰۰٬۰۰۰ تومان</strong> (نمایشی و آزمایشی)</p>
+<button type="button" class="button" id="renewListingBtn">تمدید یک‌ماههٔ آزمایشی</button>
+<div class="renewal-history">
+<strong>📜 تاریخچهٔ تمدیدها</strong>
+<div id="renewalHistory" class="small">در حال بارگذاری...</div>
+</div>
+</div>
+
 <p id="marketModalStatus" class="small" role="status"></p>
 </div>
 </div>
@@ -292,6 +318,22 @@ let chatChannel=null,profileCache={},replyingTo=null;
 function showMessage(id,t){$(id).textContent=t}
 function modal(id,on){$(id).classList.toggle('open',on)}
 function profileFallback(email){return(email||'نویسنده').split('@')[0]||'نویسنده'}
+function formatDate(value){
+if(!value)return'نامشخص';
+const d=new Date(value);
+if(Number.isNaN(d.getTime()))return'نامشخص';
+return d.toLocaleString('fa-IR');
+}
+function isListingExpired(listing){
+return !listing?.expires_at||new Date(listing.expires_at).getTime()<=Date.now();
+}
+function remainingTimeText(expiry){
+if(!expiry)return'تاریخ انقضا ثبت نشده';
+const ms=new Date(expiry).getTime()-Date.now();
+if(ms<=0)return'اعتبار آگهی به پایان رسیده است.';
+const days=Math.ceil(ms/(1000*60*60*24));
+return days===1?'کمتر از یک روز تا انقضا':days.toLocaleString('fa-IR')+' روز تا انقضا';
+}
 
 function updateUser(u){
 user=u||null;
@@ -325,7 +367,7 @@ showMessage('authMessage',data.session?'حساب ساخته شد و وارد ش�
 };
 $('signOut').onclick=async()=>{
 const{error}=await sb.auth.signOut();
-if(error)showMessage('authMessage',error.message);else{updateUser(null);await loadBuyerLibrary();showMessage('authMessage','از حساب خارج شدی.')}
+if(error)showMessage('authMessage',error.message);else{updateUser(null);await loadBuyerLibrary();await loadMarket();showMessage('authMessage','از حساب خارج شدی.')}
 };
 $('forgotPassword').onclick=async()=>{
 const email=$('authEmail').value.trim();if(!email){showMessage('authMessage','ابتدا ایمیل حسابت را وارد کن.');$('authEmail').focus();return}
@@ -379,14 +421,23 @@ $('mangaGrid').replaceChildren(...(data||[]).map(mangaCard));search();
 
 /* MARKET */
 function marketAuthorName(p){return p?.display_name||'نویسنده ناشناس'}
+
 async function loadMarket(){
 $('marketStatus').textContent='در حال بارگذاری بازار...';
-const{data:listings,error}=await sb.from('manga_market_listings').select('id,manga_id,seller_id,price,currency,status,preview_pages,created_at').order('created_at',{ascending:false});
+const{data:listings,error}=await sb.from('manga_market_listings')
+.select('id,manga_id,seller_id,price,currency,status,preview_pages,created_at,listing_started_at,expires_at')
+.order('created_at',{ascending:false});
 if(error){console.error(error);$('marketStatus').textContent='بارگذاری بازار ناموفق بود: '+error.message;return}
 marketListings=listings||[];
-const visible=marketListings.filter(x=>x.status==='active'||x.seller_id===user?.id);
+
+/* آگهی منقضی‌شده فقط برای صاحب آن قابل مشاهده است */
+const visible=marketListings.filter(x=>
+(x.status==='active'&&!isListingExpired(x))||x.seller_id===user?.id
+);
 const mids=[...new Set(visible.map(x=>x.manga_id))],sids=[...new Set(visible.map(x=>x.seller_id))];
-if(!mids.length){marketMangas=[];marketProfiles=[];renderMarket();$('marketStatus').textContent='';return}
+if(!mids.length){
+marketMangas=[];marketProfiles=[];renderMarket();$('marketStatus').textContent='';return;
+}
 const[mr,pr]=await Promise.all([
 sb.from('mangas').select('id,user_id,title,description,genre,cover_url,created_at').in('id',mids),
 sb.from('profiles').select('id,display_name,bio').in('id',sids)
@@ -394,20 +445,32 @@ sb.from('profiles').select('id,display_name,bio').in('id',sids)
 if(mr.error){$('marketStatus').textContent='خطا در دریافت مانگاها: '+mr.error.message;return}
 marketMangas=mr.data||[];marketProfiles=pr.data||[];renderMarket();$('marketStatus').textContent='';
 }
+
 async function getOwnedMangaIds(){
 if(!user)return new Set();
 const{data,error}=await sb.from('manga_market_orders').select('manga_id').eq('buyer_id',user.id);
 if(error)throw error;
 return new Set((data||[]).map(x=>x.manga_id));
 }
+
 async function renderMarket(){
 const grid=$('marketGrid');grid.replaceChildren();
 const q=$('marketSearch').value.trim().toLocaleLowerCase('fa'),genre=$('marketGenre').value,pf=$('marketPriceFilter').value;
 const mm=new Map(marketMangas.map(m=>[m.id,m])),pm=new Map(marketProfiles.map(p=>[p.id,p]));
 let owned=new Set();
 try{owned=await getOwnedMangaIds()}catch(e){console.error(e)}
+
 const items=marketListings.filter(l=>{
-if(l.status!=='active'&&l.seller_id!==user?.id)return false;
+const isOwner=user&&l.seller_id===user.id;
+const expired=isListingExpired(l);
+
+/* آگهی متوقف یا منقضی‌شده در بازار عمومی نمایش داده نمی‌شود */
+if(!isOwner&&(l.status!=='active'||expired))return false;
+if(isOwner&&l.status!=='active'&&l.status!=='paused')return false;
+if(isOwner&&l.status==='active'&&expired===false){
+/* آگهی فعال و معتبر */
+}else if(!isOwner)return false;
+
 const m=mm.get(l.manga_id);if(!m)return false;
 if(q&&!String(m.title||'').toLocaleLowerCase('fa').includes(q))return false;
 if(genre&&m.genre!==genre)return false;
@@ -415,8 +478,9 @@ if(pf==='free'&&Number(l.price)!==0)return false;
 if(pf==='paid'&&Number(l.price)===0)return false;
 return true;
 });
+
 for(const l of items){
-const m=mm.get(l.manga_id),isOwner=user&&l.seller_id===user.id;
+const m=mm.get(l.manga_id),isOwner=user&&l.seller_id===user.id,expired=isListingExpired(l);
 const card=document.createElement('article');card.className='market-card';
 const cover=document.createElement('div');cover.className='market-cover';
 if(m.cover_url){const img=document.createElement('img');img.src=m.cover_url;img.alt='کاور '+m.title;img.loading='lazy';cover.append(img)}else cover.textContent='影 ✦';
@@ -426,20 +490,81 @@ const desc=document.createElement('p');desc.textContent=m.description||'بدون
 const author=document.createElement('span');author.className='market-author';author.textContent='نویسنده: '+marketAuthorName(pm.get(l.seller_id));
 const genreLabel=document.createElement('span');genreLabel.className='market-genre';genreLabel.textContent='ژانر: '+(m.genre||'نامشخص');
 const price=document.createElement('span');price.className='market-price';price.textContent=Number(l.price)===0?'رایگان':Number(l.price).toLocaleString('fa-IR')+' '+(l.currency||'تومان');
+
+const expiry=document.createElement('span');
+expiry.className='market-status';
+if(expired){
+expiry.textContent='⛔ آگهی منقضی شده؛ برای نمایش دوباره تمدیدش کن.';
+}else{
+expiry.textContent='📅 اعتبار تا: '+formatDate(l.expires_at)+' · '+remainingTimeText(l.expires_at);
+}
+if(isOwner&&l.status==='paused')expiry.textContent='⏸ عرضه متوقف شده است.';
+
 const actions=document.createElement('div');actions.className='market-actions';
-const read=document.createElement('button');read.className='button';read.textContent=Number(l.price)===0||isOwner||owned.has(m.id)?'مشاهده و مطالعه':'پیش‌نمایش';read.onclick=()=>openReader(m);actions.append(read);
-if(Number(l.price)>0&&!isOwner&&!owned.has(m.id)){
+const read=document.createElement('button');read.className='button';
+read.textContent=Number(l.price)===0||isOwner||owned.has(m.id)?'مشاهده و مطالعه':'پیش‌نمایش';
+read.onclick=()=>openReader(m);actions.append(read);
+
+if(Number(l.price)>0&&!isOwner&&!owned.has(m.id)&&!expired&&l.status==='active'){
 const buy=document.createElement('button');buy.className='button secondary';buy.textContent='ثبت خرید آزمایشی';buy.onclick=()=>purchaseManga(l);actions.append(buy);
 }else if(owned.has(m.id)&&!isOwner){
 const tag=document.createElement('span');tag.className='tag';tag.textContent='در کتابخانهٔ تو';actions.append(tag);
 }
+
 if(isOwner){
-const manage=document.createElement('button');manage.className='market-manage-btn';manage.textContent=l.status==='paused'?'عرضه متوقف است':'مدیریت عرضه';manage.onclick=()=>openMarketManager(m,l);actions.append(manage);
+const manage=document.createElement('button');manage.className='market-manage-btn';
+manage.textContent=expired?'تمدید / مدیریت آگهی':l.status==='paused'?'عرضه متوقف است':'مدیریت عرضه';
+manage.onclick=()=>openMarketManager(m,l);actions.append(manage);
 }
-content.append(title,desc,author,genreLabel,price,actions);card.append(cover,content);grid.append(card);
+content.append(title,desc,author,genreLabel,price,expiry,actions);card.append(cover,content);grid.append(card);
 }
 $('marketEmpty').hidden=items.length>0;
 }
+
+async function loadRenewalHistory(listingId){
+const box=$('renewalHistory');
+box.textContent='در حال بارگذاری تاریخچه...';
+if(!user||!listingId){box.textContent='تاریخچه‌ای در دسترس نیست.';return}
+const{data,error}=await sb.from('manga_market_renewals')
+.select('id,amount,currency,status,old_expires_at,new_expires_at,created_at')
+.eq('listing_id',listingId)
+.eq('seller_id',user.id)
+.order('created_at',{ascending:false});
+if(error){box.textContent='دریافت تاریخچه ناموفق بود: '+error.message;return}
+box.replaceChildren();
+if(!data?.length){box.textContent='هنوز تمدیدی برای این آگهی ثبت نشده است.';return}
+for(const item of data){
+const row=document.createElement('div');row.className='renewal-history-item';
+const amount=document.createElement('strong');
+amount.textContent=Number(item.amount).toLocaleString('fa-IR')+' '+(item.currency||'تومان');
+const date=document.createElement('p');date.textContent='زمان ثبت: '+formatDate(item.created_at);
+const oldDate=document.createElement('p');oldDate.textContent='انقضای قبلی: '+formatDate(item.old_expires_at);
+const newDate=document.createElement('p');newDate.textContent='انقضای جدید: '+formatDate(item.new_expires_at);
+const demo=document.createElement('span');demo.className='tag';demo.textContent='تمدید آزمایشی؛ بدون پرداخت واقعی';
+row.append(amount,date,oldDate,newDate,demo);box.append(row);
+}
+}
+
+function updateRenewalPanel(l){
+const panel=$('renewalPanel');
+panel.hidden=!l;
+if(!l)return;
+const expired=isListingExpired(l);
+const status=$('renewalStatus');
+status.className='renewal-status '+(expired?'renewal-expired':'renewal-active');
+if(expired){
+status.textContent='⛔ اعتبار آگهی به پایان رسیده است؛ در بازار عمومی نمایش داده نمی‌شود.';
+}else if(l.status==='paused'){
+status.textContent='⏸ آگهی هنوز اعتبار دارد، اما عرضه آن را متوقف کرده‌ای.';
+}else{
+status.textContent='✅ آگهی در بازهٔ اعتبار قرار دارد.';
+}
+$('renewalExpiry').textContent='تاریخ پایان اعتبار: '+formatDate(l.expires_at)+' — '+remainingTimeText(l.expires_at);
+$('renewListingBtn').textContent=expired?'تمدید و فعال‌سازی دوباره':'تمدید یک‌ماههٔ آزمایشی';
+$('renewListingBtn').disabled=false;
+loadRenewalHistory(l.id);
+}
+
 function openMarketManager(m,l=null){
 if(!user){modal('authModal',true);return}
 if(m.user_id!==user.id){alert('فقط صاحب مانگا می‌تواند آن را مدیریت کند.');return}
@@ -452,44 +577,104 @@ $('marketPriceWrapper').hidden=$('marketPriceType').value!=='paid';
 $('marketExistingActions').hidden=!l;
 $('marketPauseBtn').textContent=l?.status==='paused'?'فعال‌کردن دوباره عرضه':'توقف موقت عرضه';
 $('marketSaveButton').textContent=l?'ذخیره تغییرات':'انتشار در بازار';
+updateRenewalPanel(l);
 modal('marketModal',true);
 }
+
 $('marketPriceType').onchange=()=>{$('marketPriceWrapper').hidden=$('marketPriceType').value!=='paid'};
+
 $('marketForm').onsubmit=async e=>{
 e.preventDefault();if(!user||!selectedMarketManga)return;
 if(selectedMarketManga.user_id!==user.id)return showMessage('marketModalStatus','مالکیت مانگا تأیید نشد.');
-let price=0;if($('marketPriceType').value==='paid'){price=Number($('marketPriceInput').value);if(!Number.isSafeInteger(price)||price<1)return showMessage('marketModalStatus','قیمت معتبر وارد کن.')}
+let price=0;
+if($('marketPriceType').value==='paid'){
+price=Number($('marketPriceInput').value);
+if(!Number.isSafeInteger(price)||price<1)return showMessage('marketModalStatus','قیمت معتبر وارد کن.');
+}
 const b=$('marketSaveButton');b.disabled=true;showMessage('marketModalStatus','در حال ذخیره...');
 try{
 let r;
-if(selectedMarketListing)r=await sb.from('manga_market_listings').update({price,currency:'تومان',status:'active'}).eq('id',selectedMarketListing.id).eq('seller_id',user.id);
-else r=await sb.from('manga_market_listings').insert({manga_id:selectedMarketManga.id,seller_id:user.id,price,currency:'تومان',status:'active',preview_pages:1});
+if(selectedMarketListing){
+/* تغییر قیمت، تاریخ انقضا را تغییر نمی‌دهد */
+r=await sb.from('manga_market_listings')
+.update({price,currency:'تومان'})
+.eq('id',selectedMarketListing.id).eq('seller_id',user.id);
+}else{
+/* تاریخ شروع و انقضا با مقدار پیش‌فرض دیتابیس ثبت می‌شوند */
+r=await sb.from('manga_market_listings')
+.insert({manga_id:selectedMarketManga.id,seller_id:user.id,price,currency:'تومان',status:'active',preview_pages:1});
+}
 if(r.error)throw r.error;
-modal('marketModal',false);selectedMarketManga=null;selectedMarketListing=null;await loadMarket();await loadMangas();alert('عرضه در بازار ذخیره شد 💜');
+modal('marketModal',false);selectedMarketManga=null;selectedMarketListing=null;
+await loadMarket();await loadMangas();alert('عرضه در بازار ذخیره شد 💜');
 }catch(e){showMessage('marketModalStatus','ذخیره ناموفق بود: '+e.message)}
 finally{b.disabled=false}
 };
+
+$('renewListingBtn').onclick=async()=>{
+if(!user||!selectedMarketListing)return;
+if(selectedMarketListing.seller_id!==user.id)return showMessage('marketModalStatus','مالکیت آگهی تأیید نشد.');
+if(!confirm('تمدید یک‌ماههٔ آزمایشی با مبلغ نمایشی ۱۰۰٬۰۰۰ تومان ثبت شود؟ هیچ پرداخت واقعی انجام نمی‌شود.'))return;
+
+const b=$('renewListingBtn');b.disabled=true;
+showMessage('marketModalStatus','در حال ثبت تمدید آزمایشی...');
+try{
+const{data,error}=await sb.rpc('renew_demo_manga_listing',{p_listing_id:selectedMarketListing.id});
+if(error)throw error;
+if(!data)throw Error('تاریخ انقضای جدید از سرور دریافت نشد.');
+
+showMessage('marketModalStatus','تمدید آزمایشی با موفقیت ثبت شد 💜');
+await loadMarket();
+const updated=marketListings.find(x=>x.id===selectedMarketListing.id);
+if(updated){
+selectedMarketListing=updated;
+updateRenewalPanel(updated);
+}
+await loadMangas();
+}catch(e){
+console.error(e);
+showMessage('marketModalStatus','تمدید ناموفق بود: '+e.message);
+}finally{
+b.disabled=false;
+}
+};
+
 $('marketPauseBtn').onclick=async()=>{
 if(!selectedMarketListing||!user)return;
 const next=selectedMarketListing.status==='paused'?'active':'paused',b=$('marketPauseBtn');b.disabled=true;
 try{
 const{error}=await sb.from('manga_market_listings').update({status:next}).eq('id',selectedMarketListing.id).eq('seller_id',user.id);
-if(error)throw error;modal('marketModal',false);selectedMarketManga=null;selectedMarketListing=null;await loadMarket();await loadMangas();
-}catch(e){alert('تغییر وضعیت ناموفق بود: '+e.message)}finally{b.disabled=false}
+if(error)throw error;
+modal('marketModal',false);selectedMarketManga=null;selectedMarketListing=null;
+await loadMarket();await loadMangas();
+}catch(e){alert('تغییر وضعیت ناموفق بود: '+e.message)}
+finally{b.disabled=false}
 };
+
 $('marketDeleteBtn').onclick=async()=>{
 if(!selectedMarketListing||!user||!confirm('این اثر از بازار حذف شود؟ سوابق خرید قبلی حفظ می‌شوند.'))return;
 const b=$('marketDeleteBtn');b.disabled=true;
 try{
 const{error}=await sb.from('manga_market_listings').delete().eq('id',selectedMarketListing.id).eq('seller_id',user.id);
-if(error)throw error;modal('marketModal',false);selectedMarketManga=null;selectedMarketListing=null;await loadMarket();await loadMangas();alert('عرضه از بازار حذف شد؛ سوابق خرید قبلی باقی می‌مانند.');
-}catch(e){alert('حذف ناموفق بود: '+e.message)}finally{b.disabled=false}
+if(error)throw error;
+modal('marketModal',false);selectedMarketManga=null;selectedMarketListing=null;
+await loadMarket();await loadMangas();
+alert('عرضه از بازار حذف شد؛ سوابق خرید قبلی باقی می‌مانند.');
+}catch(e){alert('حذف ناموفق بود: '+e.message)}
+finally{b.disabled=false}
 };
-$('marketSearch').oninput=renderMarket;$('marketGenre').onchange=renderMarket;$('marketPriceFilter').onchange=renderMarket;
+
+$('marketSearch').oninput=renderMarket;
+$('marketGenre').onchange=renderMarket;
+$('marketPriceFilter').onchange=renderMarket;
 
 /* DEMO PURCHASE + LIBRARY */
 async function purchaseManga(listing){
 if(!user){modal('authModal',true);return}
+if(isListingExpired(listing)||listing.status!=='active'){
+alert('اعتبار این آگهی به پایان رسیده یا عرضه متوقف شده است.');
+await loadMarket();return;
+}
 if(!confirm('این خرید آزمایشی است و هیچ پولی دریافت نمی‌شود. مانگا به کتابخانه‌ات اضافه شود؟'))return;
 try{
 const{error}=await sb.rpc('complete_demo_manga_purchase',{p_listing_id:listing.id});
@@ -498,16 +683,27 @@ alert('خرید آزمایشی ثبت شد و مانگا به کتابخانه�
 await loadBuyerLibrary();await renderMarket();
 }catch(e){console.error(e);alert('ثبت خرید ناموفق بود: '+e.message)}
 }
+
 async function loadBuyerLibrary(){
 const box=$('buyerLibrary');box.replaceChildren();$('buyerOrders').replaceChildren();$('sellerOrders').replaceChildren();
-if(!user){$('libraryEmpty').hidden=false;$('libraryStatus').textContent='برای دیدن کتابخانه وارد حساب شو.';renderOrderHistory($('buyerOrders'),[],'برای مشاهدهٔ سوابق وارد حساب شو.');renderOrderHistory($('sellerOrders'),[],'برای مشاهدهٔ فروش‌ها وارد حساب شو.');return}
+if(!user){
+$('libraryEmpty').hidden=false;
+$('libraryStatus').textContent='برای دیدن کتابخانه وارد حساب شو.';
+renderOrderHistory($('buyerOrders'),[],'برای مشاهدهٔ سوابق وارد حساب شو.');
+renderOrderHistory($('sellerOrders'),[],'برای مشاهدهٔ فروش‌ها وارد حساب شو.');
+return;
+}
 $('libraryStatus').textContent='در حال بارگذاری...';
 try{
-const{data:orders,error}=await sb.from('manga_market_orders').select('id,buyer_id,seller_id,manga_id,price,currency,seller_share,platform_share,created_at,status,mangas(id,user_id,title,description,genre,cover_url)').eq('buyer_id',user.id).order('created_at',{ascending:false});
+const{data:orders,error}=await sb.from('manga_market_orders')
+.select('id,buyer_id,seller_id,manga_id,price,currency,seller_share,platform_share,created_at,status,mangas(id,user_id,title,description,genre,cover_url)')
+.eq('buyer_id',user.id).order('created_at',{ascending:false});
 if(error)throw error;
 for(const o of orders||[]){
 if(!o.mangas)continue;
-const card=mangaCard(o.mangas),tag=document.createElement('span');tag.className='tag';tag.textContent='خریداری‌شده';card.querySelector('.card-content').append(tag);box.append(card);
+const card=mangaCard(o.mangas),tag=document.createElement('span');
+tag.className='tag';tag.textContent='خریداری‌شده';
+card.querySelector('.card-content').append(tag);box.append(card);
 }
 $('libraryEmpty').hidden=(orders||[]).length>0;
 renderOrderHistory($('buyerOrders'),orders||[],'هنوز خرید آزمایشی ثبت نکرده‌ای.');
@@ -515,12 +711,16 @@ $('libraryStatus').textContent='';
 }catch(e){$('libraryStatus').textContent='خطا در بارگذاری کتابخانه: '+e.message;console.error(e)}
 await loadSellerOrders();
 }
+
 async function loadSellerOrders(){
 if(!user)return;
-const{data,error}=await sb.from('manga_market_orders').select('id,buyer_id,seller_id,manga_id,price,currency,seller_share,platform_share,created_at,status,mangas(title)').eq('seller_id',user.id).order('created_at',{ascending:false});
+const{data,error}=await sb.from('manga_market_orders')
+.select('id,buyer_id,seller_id,manga_id,price,currency,seller_share,platform_share,created_at,status,mangas(title)')
+.eq('seller_id',user.id).order('created_at',{ascending:false});
 if(error){$('sellerOrders').textContent='خطا: '+error.message;return}
 renderOrderHistory($('sellerOrders'),data||[],'هنوز فروش آزمایشی ثبت نشده است.');
 }
+
 function renderOrderHistory(box,orders,emptyText){
 box.replaceChildren();
 if(!orders.length){const p=document.createElement('p');p.className='market-empty';p.textContent=emptyText;box.append(p);return}
@@ -542,6 +742,7 @@ const{error}=await sb.storage.from('manga-files').upload(path,file,{contentType:
 if(error)throw error;
 return sb.storage.from('manga-files').getPublicUrl(path).data.publicUrl;
 }
+
 $('mangaForm').onsubmit=async e=>{
 e.preventDefault();if(!user){modal('authModal',true);return}
 const title=$('title').value.trim(),description=$('description').value.trim(),genre=$('genre').value,file=$('cover').files[0];
@@ -560,20 +761,27 @@ modal('mangaModal',false);$('mangaForm').reset();await loadMangas();await loadMa
 }catch(err){console.error(err);alert('انتشار کامل نشد: '+err.message+(mangaId?' (ممکن است مانگا ذخیره شده باشد.)':''));await loadMangas()}
 finally{btn.disabled=false;btn.textContent='انتشار مانگا'}
 };
+
 function storagePathFromUrl(url){
-if(!url)return null;const marker='/storage/v1/object/public/manga-files/',i=url.indexOf(marker);if(i<0)return null;
-try{return decodeURIComponent(url.slice(i+marker.length).split('?')[0])}catch{return url.slice(i+marker.length).split('?')[0]}
+if(!url)return null;
+const marker='/storage/v1/object/public/manga-files/',i=url.indexOf(marker);
+if(i<0)return null;
+try{return decodeURIComponent(url.slice(i+marker.length).split('?')[0])}
+catch{return url.slice(i+marker.length).split('?')[0]}
 }
+
 async function verifyMangaOwner(id){
 const{data:s,error:se}=await sb.auth.getSession();if(se)throw se;
 const u=s.session?.user;if(!u)throw Error('ابتدا وارد حساب شو.');
 const{data,error}=await sb.from('mangas').select('id,user_id,cover_url,title').eq('id',id).eq('user_id',u.id).maybeSingle();
 if(error)throw error;if(!data)throw Error('فقط صاحب داستان اجازهٔ این کار را دارد.');return data;
 }
+
 async function mangaHasOrders(id){
 const{count,error}=await sb.from('manga_market_orders').select('id',{count:'exact',head:true}).eq('manga_id',id);
 if(error)throw error;return(count||0)>0;
 }
+
 async function removeStoragePaths(paths){
 const unique=[...new Set(paths.filter(Boolean))];if(!unique.length)return null;
 const{error}=await sb.storage.from('manga-files').remove(unique);return error||null;
@@ -600,6 +808,7 @@ alert(se?'داستان حذف شد، اما بعضی فایل‌ها پاک نش
 }catch(e){alert('حذف کامل نشد: '+e.message);console.error(e)}
 finally{b.disabled=false}
 };
+
 async function deleteChapter(ch){
 if(!activeManga||!confirm(`فصل «${ch.title}» و فایل‌هایش حذف شود؟`))return;
 try{
@@ -612,6 +821,7 @@ const{error:ce}=await sb.from('manga_chapters').delete().eq('id',ch.id);if(ce)th
 const se=await removeStoragePaths(paths);await loadManagerChapters();if(se)alert('فصل حذف شد، اما بعضی فایل‌ها پاک نشدند: '+se.message);
 }catch(e){alert('حذف فصل ناموفق بود: '+e.message);console.error(e)}
 }
+
 async function deletePage(ch,page){
 if(!confirm('این فایل حذف شود؟'))return;
 try{
@@ -622,9 +832,11 @@ let se=null;if(page.file_path&&!/^https?:\/\//i.test(page.file_path))se=await re
 await loadManagerChapters();if(se)alert('فایل از رکورد حذف شد اما Storage خطا داد: '+se.message);
 }catch(e){alert('حذف فایل ناموفق بود: '+e.message)}
 }
+
 async function openChapterManager(m){
 activeManga=m;$('chapterMangaTitle').textContent='مانگا: '+m.title;showMessage('chapterMessage','');modal('chaptersModal',true);await loadManagerChapters();
 }
+
 async function loadManagerChapters(){
 if(!activeManga)return;$('chaptersList').textContent='در حال بارگذاری...';
 const{data,error}=await sb.from('manga_chapters').select('id,title,chapter_number').eq('manga_id',activeManga.id).order('chapter_number');
@@ -675,6 +887,7 @@ const d=document.createElement('button');d.className='button secondary';d.textCo
 }
 }
 }
+
 $('addChapter').onclick=async()=>{
 if(!activeManga||!user)return;
 try{
@@ -700,6 +913,7 @@ for(const ch of chs){const o=document.createElement('option');o.value=ch.id;o.te
 const btn=document.createElement('button');btn.className='button';btn.textContent='خواندن فصل';btn.onclick=()=>loadReaderChapter(select.value,chs.find(c=>c.id===select.value));
 $('readerChapters').append(select,btn);await loadReaderChapter(chs[0].id,chs[0]);
 }
+
 async function loadReaderChapter(id,ch){
 const area=$('readerContent');area.textContent='در حال بارگذاری صفحات...';
 const{data:pages,error}=await sb.from('manga_pages').select('id,file_path,file_type,page_number').eq('chapter_id',id).order('page_number');
@@ -716,7 +930,6 @@ const link=document.createElement('a');link.href=url;link.target='_blank';link.r
 }
 
 /* PROFILES + CHAT */
-function profileFallback(email){return(email||'نویسنده').split('@')[0]||'نویسنده'}
 async function loadMyProfile(){
 if(!user){$('profileName').value='';$('profileBio').value='';$('profileName').disabled=true;$('profileBio').disabled=true;$('saveProfile').disabled=true;showMessage('profileStatus','برای ویرایش پروفایل ابتدا وارد حساب شو.');return}
 $('profileName').disabled=false;$('profileBio').disabled=false;$('saveProfile').disabled=false;
@@ -724,6 +937,7 @@ const{data,error}=await sb.from('profiles').select('display_name,bio').eq('id',u
 if(error){showMessage('profileStatus','خطا در دریافت پروفایل: '+error.message);return}
 $('profileName').value=data?.display_name||profileFallback(user.email);$('profileBio').value=data?.bio||'';showMessage('profileStatus','');
 }
+
 async function saveMyProfile(){
 if(!user)return showMessage('profileStatus','برای ذخیرهٔ پروفایل وارد حساب شو.');
 const display_name=$('profileName').value.trim().slice(0,40),bio=$('profileBio').value.trim().slice(0,300);
@@ -734,12 +948,14 @@ const{error}=await sb.from('profiles').upsert({id:user.id,display_name,bio,updat
 showMessage('profileStatus','پروفایلت ذخیره شد 💜');await loadProfiles();await loadChat();await loadMarket();
 }catch(e){showMessage('profileStatus','ذخیره ناموفق بود: '+e.message)}finally{b.disabled=false}
 }
+
 async function loadProfiles(){
 const box=$('profilesList');const{data,error}=await sb.from('profiles').select('id,display_name,bio,updated_at').order('updated_at',{ascending:false}).limit(100);
 if(error){box.textContent='خطا در دریافت نویسنده‌ها: '+error.message;return}
 profileCache={};box.replaceChildren();if(!data?.length){box.textContent='هنوز پروفایلی ثبت نشده.';return}
 for(const p of data){profileCache[p.id]=p.display_name||'نویسنده';const item=document.createElement('div');item.className='profile-item';const n=document.createElement('strong');n.textContent=p.display_name||'نویسنده';const bio=document.createElement('p');bio.className='small';bio.textContent=p.bio||'هنوز توضیحی ننوشته.';item.append(n,bio);box.append(item)}
 }
+
 const CHAT_IMAGE_PREFIX='[[SM_IMAGE]]',CHAT_REPLY_PREFIX='[[SM_REPLY]]';
 function unwrapReplyBody(raw){
 let body=String(raw||''),reply=null;
@@ -759,6 +975,7 @@ $('closeImageLightbox').onclick=closeImageLightbox;
 $('imageLightbox').onclick=e=>{if(e.target===$('imageLightbox'))closeImageLightbox()};
 $('lightboxImage').onclick=e=>e.stopPropagation();
 $('cancelChatReply').onclick=cancelChatReply;
+
 function resetChatImage(){$('chatImageInput').value='';$('chatImageName').textContent='بدون عکس انتخاب‌شده';$('clearChatImage').hidden=true}
 $('chooseChatImage').onclick=()=>{if(!user){showMessage('chatStatus','برای ارسال عکس ابتدا وارد حساب شو.');modal('authModal',true);return}$('chatImageInput').click()};
 $('chatImageInput').onchange=()=>{
@@ -768,6 +985,7 @@ if(f.size>5*1024*1024){resetChatImage();showMessage('chatStatus','حجم عکس 
 $('chatImageName').textContent=f.name+' ('+(f.size/1024/1024).toFixed(2)+' مگابایت)';$('clearChatImage').hidden=false;showMessage('chatStatus','عکس آمادهٔ ارسال است.');
 };
 $('clearChatImage').onclick=()=>{resetChatImage();showMessage('chatStatus','عکس لغو شد.')};
+
 async function loadChat(){
 const box=$('chatMessages');const{data,error}=await sb.from('community_messages').select('id,user_id,body,created_at').order('created_at',{ascending:true}).limit(150);
 if(error){box.textContent='خطا در دریافت پیام‌ها: '+error.message;return}
@@ -790,6 +1008,7 @@ item.append(actions);box.append(item);
 }
 box.scrollTop=box.scrollHeight;showMessage('chatStatus','');
 }
+
 async function sendChatMessage(e){
 e?.preventDefault();if(!user){showMessage('chatStatus','برای ارسال پیام وارد حساب شو.');modal('authModal',true);return}
 const caption=$('chatInput').value.trim(),file=$('chatImageInput').files[0];if(!caption&&!file)return;
@@ -806,6 +1025,7 @@ $('chatInput').value='';resetChatImage();cancelChatReply();await loadChat();
 }catch(e){if(path)await removeStoragePaths([path]);showMessage('chatStatus','ارسال ناموفق بود: '+e.message)}
 finally{b.disabled=false;$('chooseChatImage').disabled=false}
 }
+
 async function deleteChatMessage(id,raw=''){
 if(!user||!confirm('پیام خودت حذف شود؟'))return;
 try{
@@ -815,12 +1035,15 @@ if(body.startsWith(CHAT_IMAGE_PREFIX)){const url=body.slice(CHAT_IMAGE_PREFIX.le
 await loadChat();
 }catch(e){showMessage('chatStatus','حذف پیام ناموفق بود: '+e.message)}
 }
+
 function connectChatRealtime(){
 if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null}
 if(!user)return;
 chatChannel=sb.channel('shadowmanga-community-live').on('postgres_changes',{event:'*',schema:'public',table:'community_messages'},()=>loadChat()).subscribe();
 }
-$('saveProfile').onclick=saveMyProfile;$('chatForm').addEventListener('submit',sendChatMessage);
+
+$('saveProfile').onclick=saveMyProfile;
+$('chatForm').addEventListener('submit',sendChatMessage);
 $('refreshChat').onclick=async()=>{await loadProfiles();await loadChat()};
 
 /* AUTH + STARTUP */
@@ -831,6 +1054,7 @@ updateUser(session?.user||null);
 await loadMyProfile();await loadProfiles();await loadChat();await loadMangas();await loadMarket();await loadBuyerLibrary();connectChatRealtime();
 },0);
 });
+
 (async()=>{
 try{
 const{data,error}=await sb.auth.getSession();if(error)showMessage('authMessage','خطا: '+error.message);
