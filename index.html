@@ -416,17 +416,20 @@ const{data,error}=await sb.auth.signUp({
 });
 if(error)throw error;
 
-// Supabase برای جلوگیری از افشای اطلاعات حساب‌ها ممکن است کاربر تکراری
-// را با آرایهٔ identities خالی برگرداند؛ در این حالت پیام مناسب نشان می‌دهیم.
-if(data?.user && Array.isArray(data.user.identities) && data.user.identities.length===0){
+// Supabase برای جلوگیری از افشای وجود حساب‌ها، ایمیل تکراری را معمولاً
+// با identities خالی برمی‌گرداند. این شرط باید پیش از نمایش پیام تأیید بررسی شود.
+const duplicateEmail = !!data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0;
+if(duplicateEmail){
   showMessage('authMessage','این ایمیل قبلاً ثبت‌نام کرده است. لطفاً وارد حساب خود شوید.');
+  $('authPassword').focus();
 }else if(data?.session){
-  showMessage('authMessage','حساب ساخته شد و وارد شدی.');
+  showMessage('authMessage','ثبت‌نام انجام شد و وارد حساب شدی.');
   modal('authModal',false);
 }else if(data?.user && !data.user.email_confirmed_at){
+  // بدون session فقط می‌گوییم ایمیل را بررسی کند؛ ادعا نمی‌کنیم حساب قطعاً تازه ساخته شده.
   showEmailConfirmation(email);
 }else{
-  showMessage('authMessage','درخواست ثبت‌نام دریافت شد. اگر حسابی با این ایمیل وجود داشته باشد، برای حفظ حریم خصوصی ممکن است پیام یکسانی نمایش داده شود؛ در صورت داشتن حساب، وارد شوید یا رمز را بازیابی کنید.');
+  showMessage('authMessage','امکان تشخیص وضعیت این ایمیل از پاسخ Supabase وجود ندارد. اگر قبلاً حساب ساخته‌ای، وارد شو یا رمزت را بازیابی کن.');
 }
 }catch(e){
 const message=String(e?.message||'');
