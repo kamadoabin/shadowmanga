@@ -71,7 +71,7 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 .email-confirm-icon{font-size:64px;line-height:1.3;margin-bottom:12px}
 .email-confirm-title{font-size:clamp(28px,5vw,48px);line-height:1.5;color:#e8d9ff;margin:8px 0 18px}
 .email-confirm-copy{font-size:16px;color:#d2c5e5;overflow-wrap:anywhere}
-.email-confirm-link{display:inline-block;margin:16px 0;padding:10px 20px;border-radius:12px;background:#302044;color:#e7d4ff;font-weight:bold;direction:ltr}
+.email-confirm-link{display:inline-block;margin:16px 0;padding:10px 20px;border-radius:12px;background:#1d4ed8;color:#ffffff;font-weight:bold;direction:ltr}
 .email-confirm-email{color:#f0abfc;font-weight:bold;overflow-wrap:anywhere}
 
 [hidden]{display:none!important}
@@ -325,12 +325,14 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 <div id="emailConfirmScreen" class="email-confirm-screen" role="dialog" aria-modal="true" aria-labelledby="emailConfirmTitle">
   <div class="email-confirm-card">
     <div class="email-confirm-icon" aria-hidden="true">📩</div>
-    <h1 id="emailConfirmTitle" class="email-confirm-title">Supabase Auth را در Gmail چک کنید</h1>
+    <h1 id="emailConfirmTitle" class="email-confirm-title">Supabase Auth را در Gmail خود چک کنید</h1>
     <p class="email-confirm-copy">
-      در جیمیلی که با این نام فرستنده برای شما ایمیل ارسال شده است،
-      روی لینک زیر کلیک کنید تا حساب شما ساخته و تأیید شود:
+      بعد از باز کردن پیام در Gmail، روی لینک آبی‌رنگ
+      <strong dir="ltr">Confirm email address</strong>
+      بزنید و سپس وارد حساب خود شوید.
     </p>
-    <div class="email-confirm-link">Confirm email address</div>
+    <div class="email-confirm-link" dir="ltr">Confirm email address</div>
+    <p class="small">این عبارت فقط نمونه است؛ لینک واقعی و قابل‌کلیک داخل ایمیلی است که Supabase برایتان فرستاده است.</p>
     <p id="emailConfirmAddress" class="email-confirm-email"></p>
     <p class="small">اگر ایمیل را پیدا نکردید، پوشه‌های Spam یا هرزنامه را هم بررسی کنید.</p>
     <button id="emailConfirmBack" type="button" class="button secondary" style="margin-top:18px">بازگشت به سایت</button>
@@ -417,7 +419,7 @@ if(error)throw error;
 // Supabase برای جلوگیری از افشای اطلاعات حساب‌ها ممکن است کاربر تکراری
 // را با آرایهٔ identities خالی برگرداند؛ در این حالت پیام مناسب نشان می‌دهیم.
 if(data?.user && Array.isArray(data.user.identities) && data.user.identities.length===0){
-  showMessage('authMessage','این حساب از قبل وجود دارد. لطفاً وارد حساب خود شوید یا رمز عبور را بازیابی کنید.');
+  showMessage('authMessage','این ایمیل قبلاً ثبت‌نام کرده است. لطفاً وارد حساب خود شوید.');
 }else if(data?.session){
   showMessage('authMessage','حساب ساخته شد و وارد شدی.');
   modal('authModal',false);
@@ -429,7 +431,7 @@ if(data?.user && Array.isArray(data.user.identities) && data.user.identities.len
 }catch(e){
 const message=String(e?.message||'');
 if(/already registered|user already exists|already been registered/i.test(message)){
-  showMessage('authMessage','این حساب از قبل وجود دارد. لطفاً وارد حساب خود شوید یا رمز عبور را بازیابی کنید.');
+  showMessage('authMessage','این ایمیل قبلاً ثبت‌نام کرده است. لطفاً وارد حساب خود شوید.');
 }else{
   showMessage('authMessage','ثبت‌نام ناموفق بود: '+message);
 }
