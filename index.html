@@ -115,6 +115,28 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 .preview-notice{padding:12px;margin:12px 0;border-right:4px solid var(--purple);background:#241b33;border-radius:9px;color:#eee2ff}
 .preview-notice strong{color:var(--pink)}
 @media(max-width:800px){.hero,.manga-grid,.community{grid-template-columns:1fr}.chat-compose{grid-template-columns:1fr}.navbar{align-items:flex-start}nav{justify-content:flex-start}.market-toolbar{grid-template-columns:1fr}}
+
+/* Floating ShadowManga help button */
+.help-launcher{position:fixed;right:24px;bottom:24px;z-index:19;display:flex;align-items:center;gap:10px;padding:0;border:0;background:transparent;color:#fff;direction:rtl;text-decoration:none;filter:drop-shadow(0 5px 12px #0009)}
+.help-launcher-icon{width:50px;height:50px;display:grid;place-items:center;flex:0 0 50px;border-radius:50%;background:#24212b;border:1px solid #494451;color:#fff;font-size:27px;font-weight:700;line-height:1;box-shadow:0 5px 16px #0008;transition:transform .18s ease,background .18s ease}
+.help-launcher-label{color:#fff;font-weight:700;text-shadow:0 2px 8px #000;transition:opacity .18s ease}
+.help-launcher:hover .help-launcher-icon{background:#302c38;transform:translateY(-2px)}
+.help-launcher:focus-visible{outline:2px solid #fff;outline-offset:5px;border-radius:30px}
+.help-modal-content{width:min(680px,100%)}
+.help-intro{color:var(--muted);margin-top:-4px}
+.help-topic{padding:12px 14px;margin:10px 0;border:1px solid var(--line);border-radius:12px;background:#100d18}
+.help-topic summary{cursor:pointer;font-weight:bold;color:#fff}
+.help-topic p{margin:9px 0 0;color:var(--muted);font-size:14px;line-height:1.9}
+.help-steps{margin:10px 0 0;padding:0 22px 0 0;color:#eee;line-height:2}
+.help-steps li{padding:3px 0}
+.help-gmail-card{display:flex;align-items:center;gap:12px;margin:12px 0;padding:12px;border:1px solid #3b3542;border-radius:12px;background:#17131d}
+.help-gmail-icon{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;border-radius:12px;background:#fff}
+.help-gmail-icon svg{width:34px;height:28px}
+.help-gmail-card strong{display:block;color:#fff}
+.help-gmail-card small{display:block;color:var(--muted);line-height:1.7}
+.help-tip{margin-top:10px;padding:10px 12px;border-right:3px solid #aaa;background:#211e27;border-radius:8px;color:#eee;font-size:13px;line-height:1.9}
+@media(max-width:600px){.help-launcher{right:14px;bottom:14px;gap:8px}.help-launcher-icon{width:46px;height:46px;flex-basis:46px}.help-launcher-label{font-size:14px}}
+
 </style>
 </head>
 <body>
@@ -339,6 +361,80 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
   </div>
 </div>
 
+
+<button type="button" class="help-launcher" id="openHelp" aria-label="باز کردن راهنمای ShadowManga">
+  <span class="help-launcher-icon" aria-hidden="true">?</span>
+  <span class="help-launcher-label">راهنما</span>
+</button>
+
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="modal-content help-modal-content">
+    <div class="modal-header"><h2 id="helpTitle">راهنمای ShadowManga</h2><button class="close" data-close="helpModal" type="button" aria-label="بستن">×</button></div>
+    <p class="help-intro">راهنمای مرحله‌به‌مرحله‌ی امکانات ShadowManga. روی عنوان هر بخش بزن تا توضیحاتش باز شود.</p>
+    <details class="help-topic" open>
+      <summary>۱. ساخت حساب و ورود به سایت</summary>
+      <p><strong>برای ساخت حساب:</strong></p>
+      <ol class="help-steps">
+        <li>در سایت روی «ورود / حساب کاربری» بزن.</li>
+        <li>در کادر «ایمیل»، آدرس ایمیلت را کامل وارد کن؛ مثلاً آدرس Gmail خودت.</li>
+        <li>در کادر «رمز عبور»، یک رمز با حداقل ۸ نویسه وارد کن.</li>
+        <li>اگر اولین بار است حساب می‌سازی، روی «ساخت حساب» بزن.</li>
+        <li>اگر سایت گفت ایمیلت را تأیید کن، مراحل بخش بعد را انجام بده.</li>
+      </ol>
+      <p><strong>اگر از قبل حساب داری:</strong> همان ایمیل و رمز قبلی را وارد کن و فقط روی «ورود» بزن؛ دوباره «ساخت حساب» را انتخاب نکن.</p>
+    </details>
+    <details class="help-topic">
+      <summary>۲. تأیید ایمیل با Gmail (همراه با راهنمای تصویری)</summary>
+      <div class="help-gmail-card">
+        <span class="help-gmail-icon" aria-label="نماد Gmail">
+          <svg viewBox="0 0 48 36" role="img" aria-label="Gmail"><path fill="#4285F4" d="M4 32V7l6-5 14 11L38 2l6 5v25h-8V13L24 22 12 13v19z"/><path fill="#EA4335" d="M4 7l6-5 14 11-6 5z"/><path fill="#34A853" d="M38 13l6-6v25h-8V13z"/><path fill="#C5221F" d="M4 7l8 6v19H4z"/><path fill="#FBBC04" d="M24 13l14-11 6 5-20 15z"/></svg>
+        </span>
+        <span><strong>Gmail — برنامه‌ی ایمیل گوگل</strong><small>آیکون پاکت سفید با حرف M رنگی؛ یا می‌توانی از سایت mail.google.com استفاده کنی.</small></span>
+      </div>
+      <ol class="help-steps">
+        <li>برنامه‌ی Gmail را در گوشی یا رایانه باز کن. اگر برنامه را نداری، در مرورگر وارد <bdi dir="ltr">mail.google.com</bdi> شو.</li>
+        <li>با همان آدرس ایمیلی وارد شو که هنگام ثبت‌نام ShadowManga نوشتی.</li>
+        <li>در صندوق ورودی (Inbox)، ایمیلی با نام Supabase را پیدا کن. اگر پیدایش نکردی، عبارت <bdi dir="ltr">Supabase</bdi> را در قسمت جست‌وجوی Gmail بنویس.</li>
+        <li>ایمیل را باز کن و روی پیوند آبی <bdi dir="ltr">Confirm email address</bdi> بزن.</li>
+        <li>پس از باز شدن صفحه‌ی تأیید، به تب ShadowManga برگرد.</li>
+        <li>ایمیل و رمز عبورت را در پنجره‌ی حساب وارد کن و روی «ورود» بزن.</li>
+      </ol>
+      <div class="help-tip">اگر ایمیل را ندیدی، پوشه‌های Spam (هرزنامه)، Promotions (تبلیغات) و All Mail (همه‌ی ایمیل‌ها) را هم بررسی کن. رمز عبورت را در ایمیل یا برای هیچ‌کس ارسال نکن.</div>
+    </details>
+    <details class="help-topic">
+      <summary>۳. انتشار مانگا</summary>
+      <ol class="help-steps">
+        <li>اول وارد حساب کاربری‌ات شو.</li>
+        <li>روی «انتشار مانگا» بزن.</li>
+        <li>عنوان، توضیحات و ژانر اثر را وارد کن.</li>
+        <li>در صورت تمایل تصویر جلد را بارگذاری کن و فرم را ثبت کن.</li>
+      </ol>
+      <p>برای انتشار اثر باید وارد حساب شده باشی. فقط تصویری را بارگذاری کن که اجازه‌ی استفاده از آن را داری.</p>
+    </details>
+    <details class="help-topic">
+      <summary>۴. افزودن فصل و مطالعه‌ی مانگا</summary>
+      <ol class="help-steps">
+        <li>مانگای خودت را در فهرست آثار پیدا کن.</li>
+        <li>وارد بخش مدیریت یا فصل‌های همان مانگا شو.</li>
+        <li>گزینه‌ی افزودن فصل را انتخاب و عنوان و محتوای فصل را ثبت کن.</li>
+        <li>برای خواندن یک اثر، آن را باز کن و گزینه‌ی «مشاهده و مطالعه» را بزن.</li>
+      </ol>
+    </details>
+    <details class="help-topic">
+      <summary>۵. بازار مانگا و کتابخانه</summary>
+      <p>در «بازار مانگا» آثار عرضه‌شده را ببین و با جست‌وجو یا فیلترها اثر دلخواهت را پیدا کن. آثار در دسترس یا خریداری‌شده در بخش کتابخانه نمایش داده می‌شوند. در نسخه‌ی آزمایشی، خرید و تمدید نمایشی است و پرداخت واقعی انجام نمی‌شود.</p>
+    </details>
+    <details class="help-topic">
+      <summary>۶. انجمن، پروفایل و پیام‌ها</summary>
+      <p>از بخش انجمن می‌توانی پروفایل نویسندگان را ببینی و با حساب واردشده پیام بفرستی. برای ارسال پیام یا استفاده از امکانات حساب، ابتدا وارد شو.</p>
+    </details>
+    <details class="help-topic">
+      <summary>۷. اگر مشکلی پیش آمد</summary>
+      <p>صفحه را یک‌بار تازه‌سازی کن. اگر مشکل ادامه داشت، نام بخشی که در آن بودی و متن دقیق پیام خطا را یادداشت کن. رمز عبور، کد تأیید یا اطلاعات خصوصی‌ات را برای دیگران نفرست.</p>
+    </details>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL="https://urgxyiyrswmnnzebxewj.supabase.co";
@@ -390,6 +486,7 @@ $('openAuth').textContent=user?'حساب کاربری':'ورود / ثبت‌نا
 $('signIn').hidden=!!user;$('signUp').hidden=!!user;$('signOut').hidden=!user;
 }
 
+$('openHelp').onclick=()=>modal('helpModal',true);
 $('openAuth').onclick=()=>modal('authModal',true);
 $('openForm').onclick=$('openForm2').onclick=()=>user?modal('mangaModal',true):modal('authModal',true);
 $('discover').onclick=()=>$('manga').scrollIntoView({behavior:'smooth'});
