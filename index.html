@@ -218,7 +218,7 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 <p class="muted">پروفایل نویسنده‌ات رو بساز و با جامعهٔ ShadowManga گفت‌وگو کن.</p>
 <div class="community">
 <div class="community-card">
-<h3>✍️ پروفایل من</h3>
+  <h3>✍️ پروفایل من</h3>
 <div class="profile-form">
 <label for="profileName">نام نمایشی</label><input id="profileName" maxlength="40" placeholder="نامی که دیگران می‌بینند">
 <label for="profileBio">دربارهٔ من</label><textarea id="profileBio" maxlength="300" rows="3" placeholder="کمی دربارهٔ خودت و داستان‌هات بنویس..."></textarea>
@@ -430,7 +430,20 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
     </details>
     <details class="help-topic">
       <summary>۷. اگر مشکلی پیش آمد</summary>
-      <p>صفحه را یک‌بار تازه‌سازی کن. اگر مشکل ادامه داشت، نام بخشی که در آن بودی و متن دقیق پیام خطا را یادداشت کن. رمز عبور، کد تأیید یا اطلاعات خصوصی‌ات را برای دیگران نفرست.</p>
+      <p>ابتدا صفحه را یک‌بار تازه‌سازی کن. اگر مشکل ادامه داشت، نام بخشی که در آن بودی و متن دقیق پیام خطا را یادداشت کن و از صفحه عکس بگیر. سپس می‌توانی از راه‌های زیر با پشتیبانی ShadowManga تماس بگیری:</p>
+      <div class="help-tip" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <span aria-hidden="true">✈️</span>
+        <strong>تلگرام:</strong>
+        <a href="https://t.me/ARvin0_26paradox" target="_blank" rel="noopener noreferrer" dir="ltr" style="color:#fff;text-decoration:underline">@ARvin0_26paradox</a>
+        <a href="https://t.me/abin_kentajuro" target="_blank" rel="noopener noreferrer" dir="ltr" style="color:#fff;text-decoration:underline">@abin_kentajuro</a>
+      </div>
+      <div class="help-tip" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <span aria-hidden="true">💬</span>
+        <strong>روبیکا:</strong>
+        <a href="https://rubika.ir/ARvin0_26paradox" target="_blank" rel="noopener noreferrer" dir="ltr" style="color:#fff;text-decoration:underline">@ARvin0_26paradox</a>
+        <a href="https://rubika.ir/abin_kentajuro" target="_blank" rel="noopener noreferrer" dir="ltr" style="color:#fff;text-decoration:underline">@abin_kentajuro</a>
+      </div>
+      <p class="help-tip">برای حفظ امنیت حسابت، هرگز رمز عبور، کد تأیید ایمیل یا اطلاعات خصوصی‌ات را برای کسی نفرست. برای گزارش مشکل، متن خطا و تصویر صفحه کافی است.</p>
     </details>
   </div>
 </div>
@@ -445,7 +458,7 @@ const $=id=>document.getElementById(id);
 let user=null,activeManga=null,activeReaderManga=null;
 let activeReaderPreview=null;
 let marketListings=[],marketMangas=[],marketProfiles=[];
-let selectedMarketManga=null,selectedMarketListing=null;
+  let selectedMarketManga=null,selectedMarketListing=null;
 let chatChannel=null,profileCache={},replyingTo=null;
 
 function showMessage(id,t){$(id).textContent=t}
@@ -745,7 +758,7 @@ else{status.textContent='✅ آگهی در بازهٔ اعتبار قرار دا
 $('renewalExpiry').textContent='تاریخ پایان اعتبار: '+formatDate(l.expires_at)+' — '+remainingTimeText(l.expires_at);
 $('renewListingBtn').textContent=expired?'تمدید و فعال‌سازی دوباره':'تمدید یک‌ماههٔ آزمایشی';
 $('renewListingBtn').disabled=false;
-loadRenewalHistory(l.id);
+  loadRenewalHistory(l.id);
 }
 
 function openMarketManager(m,l=null){
@@ -1035,7 +1048,7 @@ const status=document.createElement('p');status.className='small';
 input.onchange=async()=>{
 const files=[...input.files];if(!files.length)return;
 const hasPdf=files.some(f=>f.type==='application/pdf');
-if(files.some(f=>!f.type.startsWith('image/')&&f.type!=='application/pdf')||(hasPdf&&files.length>1)){alert('چند تصویر انتخاب کن یا فقط یک PDF.');input.value='';return}
+  if(files.some(f=>!f.type.startsWith('image/')&&f.type!=='application/pdf')||(hasPdf&&files.length>1)){alert('چند تصویر انتخاب کن یا فقط یک PDF.');input.value='';return}
 if(files.some(f=>f.size>20*1024*1024)){alert('هر فایل حداکثر ۲۰ مگابایت باشد.');input.value='';return}
 input.disabled=true;status.textContent='در حال آپلود...';
 try{
@@ -1231,9 +1244,9 @@ area.append(img);
 async function loadMyProfile(){
 if(!user){$('profileName').value='';$('profileBio').value='';$('profileName').disabled=true;$('profileBio').disabled=true;$('saveProfile').disabled=true;showMessage('profileStatus','برای ویرایش پروفایل ابتدا وارد حساب شو.');return}
 $('profileName').disabled=false;$('profileBio').disabled=false;$('saveProfile').disabled=false;
-const{data,error}=await sb.from('profiles').select('display_name,bio').eq('id',user.id).maybeSingle();
+const{data,error}=await sb.from('profiles').select('id,display_name,bio').eq('id',user.id).maybeSingle();
 if(error){showMessage('profileStatus','خطا در دریافت پروفایل: '+error.message);return}
-$('profileName').value=data?.display_name||profileFallback(user.email);$('profileBio').value=data?.bio||'';showMessage('profileStatus','');
+if(data){$('profileName').value=data.display_name||'';$('profileBio').value=data.bio||''}
 }
 
 async function saveMyProfile(){
