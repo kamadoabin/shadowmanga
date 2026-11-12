@@ -45,6 +45,7 @@ label{display:block;margin:12px 0 5px}
 .chat-list{height:320px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#100d18}
 .chat-message{max-width:90%;padding:10px 12px;border-radius:12px;background:#241b33;overflow-wrap:anywhere;align-self:flex-start}
 .chat-message.mine{align-self:flex-end;background:#38244d}
+.chat-avatar{width:34px;height:34px;object-fit:cover;border-radius:50%;border:1px solid var(--purple);vertical-align:middle;margin-left:8px;background:#30223f}
 .chat-meta{font-size:12px;color:var(--muted);margin-bottom:4px}
 .chat-compose{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
 .chat-image{display:block;max-width:min(100%,420px);max-height:360px;object-fit:contain;border-radius:10px;margin-top:8px;border:1px solid var(--line);cursor:zoom-in}
@@ -80,6 +81,7 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 .lightbox img{max-width:96vw;max-height:92vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px #0009}
 .lightbox-close{position:absolute;top:12px;left:18px;border:0;background:#241b33;color:white;border-radius:50%;width:44px;height:44px;font-size:28px}
 .chat-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+.chat-edit-box{display:grid;gap:9px;margin-top:10px;padding:12px;border:1px solid var(--purple);border-radius:12px;background:#100d18}.chat-edit-box textarea{min-height:90px}.chat-edit-actions{display:flex;gap:8px;flex-wrap:wrap}.chat-edit-preview{max-width:180px;max-height:130px;object-fit:contain;border-radius:8px}
 .chat-reply-quote{border-right:3px solid var(--pink);background:#100d18;padding:6px 9px;border-radius:7px;margin:5px 0 8px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
 .chat-reply-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#241b33;border:1px solid var(--line);padding:8px 10px;border-radius:9px;margin-top:10px}
 .chat-reply-bar[hidden]{display:none!important}
@@ -136,6 +138,24 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 .help-gmail-card small{display:block;color:var(--muted);line-height:1.7}
 .help-tip{margin-top:10px;padding:10px 12px;border-right:3px solid #aaa;background:#211e27;border-radius:8px;color:#eee;font-size:13px;line-height:1.9}
 @media(max-width:600px){.help-launcher{right:14px;bottom:14px;gap:8px}.help-launcher-icon{width:46px;height:46px;flex-basis:46px}.help-launcher-label{font-size:14px}}
+
+
+/* Writer tools and profile avatar */
+.avatar-preview{width:76px;height:76px;border-radius:50%;object-fit:cover;background:#30223f;border:2px solid var(--purple);display:grid;place-items:center;font-size:30px}
+.profile-avatar-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
+.avatar-crop-stage{width:min( min(360px,80vw),360px);height:min( min(360px,80vw),360px);margin:12px auto;border:2px solid var(--purple);border-radius:50%;overflow:hidden;background:#08060d;touch-action:none;cursor:grab}
+.avatar-crop-stage:active{cursor:grabbing}
+#avatarCropCanvas{display:block;width:100%;height:100%}
+.crop-controls{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:12px 0}
+.crop-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.editor-toolbar{display:flex;gap:7px;flex-wrap:wrap;padding:10px;background:#100d18;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+.editor-toolbar button,.editor-toolbar select{width:auto;padding:7px 10px}
+.editor-surface{min-height:300px;max-height:55vh;overflow:auto;padding:18px;background:#fff;color:#201a28;border-radius:10px;line-height:2;text-align:right;outline:none}
+.editor-surface:focus{box-shadow:0 0 0 2px var(--purple)}
+.editor-surface img{max-width:100%;height:auto}
+.editor-help{font-size:12px;color:var(--muted);margin:8px 0}
+.volume-tools{padding:12px;margin:12px 0;background:#100d18;border:1px solid var(--line);border-radius:10px}
+.reader-text{white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;color:#211a2a;padding:clamp(18px,4vw,42px);border-radius:10px;line-height:2.1;margin:14px auto;max-width:850px}
 
 </style>
 </head>
@@ -218,10 +238,13 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 <p class="muted">پروفایل نویسنده‌ات رو بساز و با جامعهٔ ShadowManga گفت‌وگو کن.</p>
 <div class="community">
 <div class="community-card">
-  <h3>✍️ پروفایل من</h3>
+<h3>✍️ پروفایل من</h3>
 <div class="profile-form">
 <label for="profileName">نام نمایشی</label><input id="profileName" maxlength="40" placeholder="نامی که دیگران می‌بینند">
 <label for="profileBio">دربارهٔ من</label><textarea id="profileBio" maxlength="300" rows="3" placeholder="کمی دربارهٔ خودت و داستان‌هات بنویس..."></textarea>
+<div class="profile-avatar-row"><img id="profileAvatarPreview" class="avatar-preview" alt="پیش‌نمایش تصویر پروفایل" src=""><div><label for="profileAvatarInput">تصویر پروفایل (JPG، PNG یا WebP؛ حداکثر ۵ مگابایت)</label><input id="profileAvatarInput" type="file" accept="image/jpeg,image/png,image/webp"><button type="button" class="button secondary" id="removeProfileAvatar">حذف تصویر انتخاب‌شده</button></div></div>
+<label for="creatorStatus">وضعیت فعالیت سازنده</label><select id="creatorStatus"><option value="active">فعال</option><option value="busy">مشغول / احتمال تأخیر</option><option value="break">استراحت موقت</option><option value="inactive">غیرفعال</option><option value="returning">بازگشت به فعالیت</option><option value="irregular">انتشار نامنظم</option></select>
+<label for="creatorStatusMessage">پیام کوتاه وضعیت (اختیاری)</label><input id="creatorStatusMessage" maxlength="120" placeholder="مثلاً: فصل بعدی به‌زودی منتشر می‌شود">
 <button class="button" id="saveProfile">ذخیرهٔ پروفایل</button><p class="small" id="profileStatus" role="status"></p>
 </div>
 <h3>🖋️ نویسنده‌های انجمن</h3><div id="profilesList" class="profile-list"><p class="muted">در حال بارگذاری...</p></div>
@@ -316,7 +339,7 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 <label for="description">توضیحات</label><textarea id="description" required maxlength="500" rows="3"></textarea>
 <label for="genre">ژانر</label><select id="genre"><option>فانتزی</option><option>اکشن</option><option>ماجراجویی</option><option>معمایی</option><option>درام</option><option>ترسناک</option><option>علمی‌تخیلی</option><option>عاشقانه</option><option>کمدی</option></select>
 <label for="cover">تصویر کاور (اختیاری، حداکثر ۵ مگابایت)</label><input id="cover" type="file" accept="image/*">
-<div class="actions" style="margin-top:16px"><button type="submit" class="button">انتشار مانگا</button><button type="button" class="button secondary" data-close="mangaModal">انصراف</button></div>
+<div class="actions" style="margin-top:16px"><button type="submit" class="button">انتشار مانگا</button><button type="button" class="button secondary" id="publishAndWriteStory">✍️ انتشار و نوشتن داستان</button><button type="button" class="button secondary" data-close="mangaModal">انصراف</button></div>
 </form>
 </div>
 </div>
@@ -325,10 +348,30 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 <div class="modal-content">
 <div class="modal-header"><h2>مدیریت فصل‌ها</h2><button class="close" data-close="chaptersModal">×</button></div>
 <p class="muted" id="chapterMangaTitle"></p>
-<div class="actions" style="margin:12px 0"><button class="button secondary" id="deleteManga">🗑 حذف کامل داستان</button><button class="button" id="addChapter">＋ افزودن فصل</button></div>
+<div class="actions" style="margin:12px 0"><button class="button secondary" id="deleteManga">🗑 حذف کامل داستان</button><button class="button" id="writeChapterNow" type="button">✍️ نوشتن داستان داخل سایت</button><button class="button secondary" id="addChapter" type="button">＋ افزودن فصل</button></div>
+<div class="volume-tools"><strong>📚 مدیریت جلدها</strong><p class="small">برای داستان‌های چندجلدی، جلد بساز؛ فصل‌ها هنگام ویرایش به جلد دلخواه متصل می‌شوند.</p><div class="actions"><input id="newVolumeTitle" maxlength="80" placeholder="عنوان جلد جدید" style="flex:1;min-width:180px"><button type="button" class="button secondary" id="addVolume">＋ ساخت جلد</button></div><div id="volumeList" class="small"></div></div>
 <div id="chaptersList"></div><div class="message" id="chapterMessage"></div>
 </div>
 </div>
+
+<div class="modal" id="chapterEditorModal" role="dialog" aria-modal="true">
+<div class="modal-content wide">
+<div class="modal-header"><h2 id="chapterEditorTitle">ویرایش فصل</h2><button class="close" data-close="chapterEditorModal" type="button">×</button></div>
+<p class="small">متن داستان را همین‌جا تایپ کن؛ بارگذاری فایل اختیاری است. غلط‌یاب املایی مرورگر برای فارسی فعال شده و در صورت پشتیبانی مرورگر، زیر واژه‌های اشتباه خط قرمز می‌کشد. خواننده متن را با اسکرول عمودی می‌خواند.</p>
+<label for="editorVolume">جلد این فصل</label><select id="editorVolume"><option value="">بدون جلد</option></select>
+<div class="editor-toolbar" id="editorToolbar">
+<button type="button" data-cmd="bold"><b>B</b></button><button type="button" data-cmd="italic"><i>I</i></button><button type="button" data-cmd="underline"><u>U</u></button>
+<button type="button" data-cmd="justifyRight">راست‌چین</button><button type="button" data-cmd="justifyCenter">وسط‌چین</button><button type="button" data-cmd="justifyLeft">چپ‌چین</button>
+<select id="editorFont"><option value="Tahoma">Tahoma</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="serif">Serif</option></select>
+<select id="editorFontSize"><option value="3">معمولی</option><option value="2">کوچک</option><option value="4">بزرگ</option><option value="5">خیلی بزرگ</option></select>
+<input id="editorTextColor" type="color" value="#201a28" title="رنگ متن" style="width:45px;padding:3px">
+<button type="button" id="editorInsertImage">درج تصویر</button><input id="editorInlineImage" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+</div>
+<div id="editorSurface" class="editor-surface" contenteditable="true" spellcheck="true" lang="fa" dir="rtl" aria-label="متن داستان را اینجا بنویس"></div>
+<label for="chapterSourceFile">افزودن فایل (همهٔ فرمت‌ها؛ حداکثر ۲۰ مگابایت)</label><input id="chapterSourceFile" type="file" accept="*/*"><p class="small">TXT، MD، DOCX، RTF و PDF و سایر فایل‌ها قابل بارگذاری‌اند؛ فرمت‌های قابل‌خواندن به متن تبدیل می‌شوند و بقیه به‌صورت فایل پیوست در دسترس خواننده قرار می‌گیرند.</p>
+<div class="editor-help">پیش‌نویس به‌صورت خودکار در همین مرورگر ذخیره می‌شود. برای ذخیرهٔ دائمی در حساب، دکمهٔ ذخیره را بزن.</div>
+<div class="actions"><button type="button" class="button" id="saveChapterEditor">ذخیرهٔ فصل</button><button type="button" class="button secondary" id="previewChapterEditor">پیش‌نمایش</button><span id="chapterEditorStatus" class="small" role="status"></span></div>
+</div></div>
 
 <div class="modal" id="readerModal" role="dialog" aria-modal="true">
 <div class="modal-content wide">
@@ -449,6 +492,9 @@ footer{margin-top:35px;padding:25px 0;border-top:1px solid var(--line);color:var
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 const SUPABASE_URL="https://urgxyiyrswmnnzebxewj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_6Euo_NJSkgMC7m7ASeyyNg_hk3xPBFw";
@@ -458,8 +504,9 @@ const $=id=>document.getElementById(id);
 let user=null,activeManga=null,activeReaderManga=null;
 let activeReaderPreview=null;
 let marketListings=[],marketMangas=[],marketProfiles=[];
-  let selectedMarketManga=null,selectedMarketListing=null;
-let chatChannel=null,profileCache={},replyingTo=null;
+let selectedMarketManga=null,selectedMarketListing=null;
+let chatChannel=null,profileCache={},profileAvatarCache={},replyingTo=null;
+let editingChapter=null,activeVolumes=[],avatarPendingFile=null,avatarRemoveRequested=false,editorAutosaveHandle=null;
 
 function showMessage(id,t){$(id).textContent=t}
 function modal(id,on){$(id).classList.toggle('open',on)}
@@ -758,7 +805,7 @@ else{status.textContent='✅ آگهی در بازهٔ اعتبار قرار دا
 $('renewalExpiry').textContent='تاریخ پایان اعتبار: '+formatDate(l.expires_at)+' — '+remainingTimeText(l.expires_at);
 $('renewListingBtn').textContent=expired?'تمدید و فعال‌سازی دوباره':'تمدید یک‌ماههٔ آزمایشی';
 $('renewListingBtn').disabled=false;
-  loadRenewalHistory(l.id);
+loadRenewalHistory(l.id);
 }
 
 function openMarketManager(m,l=null){
@@ -937,24 +984,36 @@ if(error)throw error;
 return sb.storage.from('manga-files').getPublicUrl(path).data.publicUrl;
 }
 
-$('mangaForm').onsubmit=async e=>{
-e.preventDefault();if(!user){modal('authModal',true);return}
+async function publishManga(openWriter=false){
+if(!user){modal('authModal',true);return}
+const form=$('mangaForm');
+if(!form.reportValidity())return;
 const title=$('title').value.trim(),description=$('description').value.trim(),genre=$('genre').value,file=$('cover').files[0];
 if(file&&(!file.type.startsWith('image/')||file.size>5*1024*1024))return alert('کاور باید تصویر و حداکثر ۵ مگابایت باشد.');
-const btn=$('mangaForm').querySelector('[type=submit]');btn.disabled=true;btn.textContent='در حال انتشار...';let mangaId=null;
+const submit=form.querySelector('[type=submit]'),write=$('publishAndWriteStory');submit.disabled=true;write.disabled=true;submit.textContent='در حال انتشار...';let manga=null;
 try{
 const{data:m,error}=await sb.from('mangas').insert({user_id:user.id,title,description,genre}).select().single();
-if(error)throw error;mangaId=m.id;
+if(error)throw error;manga=m;
 if(file){
-const ext=/^[a-z0-9]+$/i.test(file.name.split('.').pop())?file.name.split('.').pop().toLowerCase():'jpg';
+const rawExt=file.name.split('.').pop(),ext=/^[a-z0-9]+$/i.test(rawExt)?rawExt.toLowerCase():'jpg';
 const path=`${user.id}/${m.id}/cover-${crypto.randomUUID()}.${ext}`;
 const url=await uploadFile(path,file);
 const{error:upd}=await sb.from('mangas').update({cover_url:url}).eq('id',m.id);if(upd)throw upd;
 }
-modal('mangaModal',false);$('mangaForm').reset();await loadMangas();await loadMarket();alert('مانگا منتشر شد 💜');
-}catch(err){console.error(err);alert('انتشار کامل نشد: '+err.message+(mangaId?' (ممکن است مانگا ذخیره شده باشد.)':''));await loadMangas()}
-finally{btn.disabled=false;btn.textContent='انتشار مانگا'}
-};
+form.reset();modal('mangaModal',false);await loadMangas();await loadMarket();
+if(openWriter){
+ activeManga=manga;
+ $('chapterMangaTitle').textContent='مانگا: '+manga.title;
+ showMessage('chapterMessage','');
+ modal('chaptersModal',true);
+ await loadVolumes();await loadManagerChapters();
+ await createChapterAndOpenEditor();
+}else{alert('مانگا منتشر شد 💜 حالا می‌توانی از مدیریت فصل‌ها، فصل بسازی یا داستان را بنویسی.')}
+}catch(err){console.error(err);alert('انتشار کامل نشد: '+err.message+(manga?' (ممکن است مانگا ذخیره شده باشد.)':''));await loadMangas()}
+finally{submit.disabled=false;write.disabled=false;submit.textContent='انتشار مانگا'}
+}
+$('mangaForm').onsubmit=async e=>{e.preventDefault();await publishManga(false)};
+$('publishAndWriteStory').onclick=()=>publishManga(true);
 
 function storagePathFromUrl(url){
 if(!url)return null;
@@ -1028,19 +1087,19 @@ await loadManagerChapters();if(se)alert('فایل از رکورد حذف شد ا
 }
 
 async function openChapterManager(m){
-activeManga=m;$('chapterMangaTitle').textContent='مانگا: '+m.title;showMessage('chapterMessage','');modal('chaptersModal',true);await loadManagerChapters();
+activeManga=m;$('chapterMangaTitle').textContent='مانگا: '+m.title;showMessage('chapterMessage','');modal('chaptersModal',true);await loadVolumes();await loadManagerChapters();
 }
 
 async function loadManagerChapters(){
 if(!activeManga)return;$('chaptersList').textContent='در حال بارگذاری...';
-const{data,error}=await sb.from('manga_chapters').select('id,title,chapter_number').eq('manga_id',activeManga.id).order('chapter_number');
+const{data,error}=await sb.from('manga_chapters').select('id,title,chapter_number,volume_id,content_text,content_html,editor_settings,publication_status').eq('manga_id',activeManga.id).order('chapter_number');
 $('chaptersList').replaceChildren();if(error){$('chaptersList').textContent='خطا: '+error.message;return}
 if(!data?.length){$('chaptersList').textContent='هنوز فصلی ثبت نشده؛ «افزودن فصل» را بزن.';return}
 for(const ch of data){
 const box=document.createElement('div');box.className='chapter-row';
 const head=document.createElement('div');head.className='actions';
 const h=document.createElement('strong');h.textContent=`فصل ${ch.chapter_number} — ${ch.title}`;
-const del=document.createElement('button');del.className='button secondary';del.textContent='🗑 حذف فصل';del.onclick=()=>deleteChapter(ch);head.append(h,del);box.append(head);
+const edit=document.createElement('button');edit.className='button secondary';edit.textContent='✍️ ویرایش متن و تنظیمات';edit.onclick=()=>openChapterEditor(ch);const del=document.createElement('button');del.className='button secondary';del.textContent='🗑 حذف فصل';del.onclick=()=>deleteChapter(ch);head.append(h,edit,del);box.append(head);
 const pagesBox=document.createElement('div');pagesBox.className='small';pagesBox.textContent='در حال بررسی فایل‌ها...';box.append(pagesBox);
 const label=document.createElement('label');label.textContent='افزودن تصاویر مرتب یا یک PDF (حداکثر ۲۰ مگابایت برای هر فایل)';
 const input=document.createElement('input');input.type='file';input.accept='image/*,application/pdf';input.multiple=true;
@@ -1048,7 +1107,7 @@ const status=document.createElement('p');status.className='small';
 input.onchange=async()=>{
 const files=[...input.files];if(!files.length)return;
 const hasPdf=files.some(f=>f.type==='application/pdf');
-  if(files.some(f=>!f.type.startsWith('image/')&&f.type!=='application/pdf')||(hasPdf&&files.length>1)){alert('چند تصویر انتخاب کن یا فقط یک PDF.');input.value='';return}
+if(files.some(f=>!f.type.startsWith('image/')&&f.type!=='application/pdf')||(hasPdf&&files.length>1)){alert('چند تصویر انتخاب کن یا فقط یک PDF.');input.value='';return}
 if(files.some(f=>f.size>20*1024*1024)){alert('هر فایل حداکثر ۲۰ مگابایت باشد.');input.value='';return}
 input.disabled=true;status.textContent='در حال آپلود...';
 try{
@@ -1082,19 +1141,130 @@ const d=document.createElement('button');d.className='button secondary';d.textCo
 }
 }
 
-$('addChapter').onclick=async()=>{
-if(!activeManga||!user)return;
-try{
-await verifyMangaOwner(activeManga.id);
-if(await mangaHasOrders(activeManga.id))return alert('این مانگا خریدار دارد؛ برای حفظ نسخهٔ خریداران، افزودن فصل جدید فعلاً متوقف است.');
-const title=prompt('عنوان فصل را وارد کن:');if(title===null)return;if(!title.trim())return alert('عنوان فصل نمی‌تواند خالی باشد.');
-const b=$('addChapter');b.disabled=true;
-const{data:old,error:oe}=await sb.from('manga_chapters').select('chapter_number').eq('manga_id',activeManga.id).order('chapter_number',{ascending:false}).limit(1);if(oe)throw oe;
-const n=old?.length?old[0].chapter_number+1:1;
-const{error}=await sb.from('manga_chapters').insert({manga_id:activeManga.id,title:title.trim(),chapter_number:n});if(error)throw error;
-await loadManagerChapters();showMessage('chapterMessage','فصل ذخیره شد 💜');
-}catch(e){alert('ثبت فصل ناموفق بود: '+e.message)}finally{$('addChapter').disabled=false}
+async function createChapterAndOpenEditor(){
+ if(!activeManga||!user){modal('authModal',true);return}
+ const title=prompt('عنوان فصل را وارد کن:');
+ if(title===null)return;
+ if(!title.trim()){alert('عنوان فصل نمی‌تواند خالی باشد.');return}
+ const b=$('writeChapterNow');const add=$('addChapter');if(b)b.disabled=true;if(add)add.disabled=true;
+ try{
+  await verifyMangaOwner(activeManga.id);
+  if(await mangaHasOrders(activeManga.id))throw Error('این مانگا خریدار دارد؛ برای حفظ نسخهٔ خریداران، افزودن فصل جدید فعلاً متوقف است.');
+  const{data:old,error:oe}=await sb.from('manga_chapters').select('chapter_number').eq('manga_id',activeManga.id).order('chapter_number',{ascending:false}).limit(1);if(oe)throw oe;
+  const n=old?.length?Number(old[0].chapter_number)+1:1;
+  const{data:created,error}=await sb.from('manga_chapters').insert({manga_id:activeManga.id,title:title.trim(),chapter_number:n}).select('id,title,chapter_number,volume_id,content_text,content_html,editor_settings,publication_status').single();
+  if(error)throw error;
+  await loadManagerChapters();
+  await openChapterEditor(created);
+  showMessage('chapterMessage','فصل ساخته شد؛ حالا می‌توانی داستان را مستقیم اینجا بنویسی 💜');
+ }catch(e){alert('ساخت فصل ناموفق بود: '+e.message);console.error(e)}
+ finally{if(b)b.disabled=false;if(add)add.disabled=false}
+}
+$('writeChapterNow').onclick=createChapterAndOpenEditor;
+$('addChapter').onclick=createChapterAndOpenEditor;
+
+/* VOLUMES + CHAPTER TEXT EDITOR */
+async function loadVolumes(){
+ if(!activeManga)return;const{data,error}=await sb.from('manga_volumes').select('id,volume_number,title,publication_status').eq('manga_id',activeManga.id).order('volume_number');
+ if(error){$('volumeList').textContent='خطا در دریافت جلدها: '+error.message;return}
+ activeVolumes=data||[];$('volumeList').replaceChildren();$('editorVolume').replaceChildren(new Option('بدون جلد',''));
+ for(const v of activeVolumes){$('editorVolume').add(new Option(`جلد ${v.volume_number} — ${v.title}`,v.id));const row=document.createElement('div');row.textContent=`جلد ${v.volume_number}: ${v.title} (${v.publication_status})`;$('volumeList').append(row)}
+}
+$('addVolume').onclick=async()=>{
+ if(!activeManga||!user)return;const title=$('newVolumeTitle').value.trim()||'جلد جدید';
+ try{await verifyMangaOwner(activeManga.id);const n=(activeVolumes.reduce((a,v)=>Math.max(a,Number(v.volume_number)||0),0))+1;const{error}=await sb.from('manga_volumes').insert({manga_id:activeManga.id,volume_number:n,title,publication_status:'draft'});if(error)throw error;$('newVolumeTitle').value='';await loadVolumes();showMessage('chapterMessage','جلد جدید ساخته شد.')}catch(e){alert('ساخت جلد ناموفق بود: '+e.message)}
 };
+function editorDraftKey(id){return `shadowMangaChapterDraft:${user?.id||'guest'}:${id}`}
+function scheduleEditorDraft(){if(!editingChapter)return;clearTimeout(editorAutosaveHandle);editorAutosaveHandle=setTimeout(()=>{try{localStorage.setItem(editorDraftKey(editingChapter.id),JSON.stringify({html:$('editorSurface').innerHTML,at:Date.now()}));$('chapterEditorStatus').textContent='پیش‌نویس در این مرورگر ذخیره شد.'}catch(e){$('chapterEditorStatus').textContent='ذخیرهٔ خودکار مرورگر در دسترس نیست.'}},700)}
+async function openChapterEditor(ch){
+ editingChapter=ch;$('chapterEditorTitle').textContent=`ویرایش فصل ${ch.chapter_number} — ${ch.title}`;$('editorSurface').innerHTML=window.DOMPurify?DOMPurify.sanitize(ch.content_html||''):'';if(!ch.content_html&&ch.content_text)$('editorSurface').textContent=ch.content_text;
+ await loadVolumes();$('editorVolume').value=ch.volume_id||'';$('chapterEditorStatus').textContent='';
+ try{const draft=JSON.parse(localStorage.getItem(editorDraftKey(ch.id))||'null');if(draft?.html&&confirm('یک پیش‌نویس ذخیره‌شده در این مرورگر پیدا شد. بازیابی شود؟'))$('editorSurface').innerHTML=window.DOMPurify?DOMPurify.sanitize(draft.html):draft.html}catch(e){}
+ $('chapterSourceFile').value='';modal('chapterEditorModal',true);
+}
+$('editorSurface').addEventListener('input',scheduleEditorDraft);
+$('editorToolbar').addEventListener('click',e=>{const b=e.target.closest('[data-cmd]');if(!b)return;$('editorSurface').focus();document.execCommand(b.dataset.cmd,false,null);scheduleEditorDraft()});
+$('editorFont').onchange=()=>{ $('editorSurface').focus();document.execCommand('fontName',false,$('editorFont').value);scheduleEditorDraft()};
+$('editorFontSize').onchange=()=>{$('editorSurface').focus();document.execCommand('fontSize',false,$('editorFontSize').value);scheduleEditorDraft()};
+$('editorTextColor').oninput=()=>{$('editorSurface').focus();document.execCommand('foreColor',false,$('editorTextColor').value);scheduleEditorDraft()};
+$('editorInsertImage').onclick=()=>$('editorInlineImage').click();
+$('editorInlineImage').onchange=async()=>{const f=$('editorInlineImage').files[0];if(!f)return;if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size>5*1024*1024){alert('تصویر باید JPG، PNG یا WebP و حداکثر ۵ مگابایت باشد.');return}try{const path=`${user.id}/${activeManga.id}/${editingChapter.id}/inline-${crypto.randomUUID()}.${f.type.split('/')[1]}`;const url=await uploadFile(path,f);$('editorSurface').focus();document.execCommand('insertImage',false,url);scheduleEditorDraft()}catch(e){alert('درج تصویر ناموفق بود: '+e.message)}finally{$('editorInlineImage').value=''}};
+async function extractChapterFile(file){
+ const ext=(file.name.split('.').pop()||'').toLowerCase();
+ if(ext==='pdf'||file.type==='application/pdf')return {text:'',html:'',type:'pdf',imported:false};
+ if(ext==='docx'){
+  if(!window.mammoth)throw Error('کتابخانهٔ خواندن DOCX بارگذاری نشد.');
+  const result=await mammoth.convertToHtml({arrayBuffer:await file.arrayBuffer()});
+  return {text:result.value.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(),html:result.value,type:'docx',imported:true};
+ }
+ if(['txt','md','rtf','csv','json','xml','html','htm'].includes(ext)){
+  let raw=await file.text();
+  if(ext==='rtf')raw=raw.replace(/\\par[d]?/g,'\n').replace(/\\'[0-9a-f]{2}/gi,'').replace(/\\[a-z]+-?\d* ?/gi,'').replace(/[{}]/g,'');
+  if(ext==='html'||ext==='htm'){
+   const safe=window.DOMPurify?DOMPurify.sanitize(raw):escapeHtml(raw);
+   const plain=raw.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+   return {text:plain,html:safe,type:ext,imported:true};
+  }
+  const html=ext==='md'
+   ?raw.split(/\n{2,}/).map(x=>`<p>${escapeHtml(x).replace(/\n/g,'<br>')}</p>`).join('')
+   :raw.split(/\n{2,}/).map(x=>`<p>${escapeHtml(x).replace(/\n/g,'<br>')}</p>`).join('');
+  return {text:raw,html,type:ext,imported:true};
+ }
+ return {text:'',html:'',type:ext||'file',imported:false};
+}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('chapterSourceFile').onchange=async()=>{
+ const file=$('chapterSourceFile').files[0];if(!file)return;
+ if(file.size>20*1024*1024){alert('حجم فایل حداکثر ۲۰ مگابایت باشد.');$('chapterSourceFile').value='';return}
+ const ext=(file.name.split('.').pop()||'file').toLowerCase();
+ try{
+  $('chapterEditorStatus').textContent='در حال بارگذاری فایل...';
+  const extracted=await extractChapterFile(file);
+  const safeExt=/^[a-z0-9]{1,12}$/.test(ext)?ext:'file';
+  const path=`${user.id}/${activeManga.id}/${editingChapter.id}/source-${crypto.randomUUID()}.${safeExt}`;
+  await uploadFile(path,file);
+  const{error}=await sb.from('manga_chapters').update({source_file_path:path,source_file_type:extracted.type||safeExt}).eq('id',editingChapter.id);
+  if(error)throw error;
+  if(extracted.html)$('editorSurface').innerHTML=window.DOMPurify?DOMPurify.sanitize(extracted.html):extracted.html;
+  else if(extracted.text)$('editorSurface').textContent=extracted.text;
+  scheduleEditorDraft();
+  $('chapterEditorStatus').textContent=extracted.imported?'فایل بارگذاری شد و محتوای آن وارد ویرایشگر شد؛ برای ثبت متن «ذخیرهٔ فصل» را بزن.':'فایل با موفقیت به فصل پیوست شد. فرمت آن مستقیماً قابل تبدیل به متن نیست، اما خواننده می‌تواند فایل را دریافت کند.';
+ }catch(e){$('chapterEditorStatus').textContent='خطا در بارگذاری فایل: '+e.message;console.error(e)}
+};
+$('saveChapterEditor').onclick=async()=>{
+ if(!editingChapter||!activeManga||!user)return;const btn=$('saveChapterEditor');btn.disabled=true;
+ try{await verifyMangaOwner(activeManga.id);const html=window.DOMPurify?DOMPurify.sanitize($('editorSurface').innerHTML):escapeHtml($('editorSurface').innerText);const plain=$('editorSurface').innerText;const settings={fontFamily:$('editorFont').value,fontSize:$('editorFontSize').value,textColor:$('editorTextColor').value};
+ const{data:old,error:oe}=await sb.from('manga_chapters').select('content_text,content_html,editor_settings').eq('id',editingChapter.id).single();if(oe)throw oe;
+ if(old?.content_text||old?.content_html){const{error:re}=await sb.from('manga_chapter_revisions').insert({chapter_id:editingChapter.id,editor_id:user.id,content_text:old.content_text||'',content_html:old.content_html||'',editor_settings:old.editor_settings||{},change_note:'ذخیرهٔ نسخهٔ پیشین پیش از ویرایش'});if(re)throw re}
+ const{error}=await sb.from('manga_chapters').update({content_text:plain,content_html:html,editor_settings:settings,volume_id:$('editorVolume').value||null,updated_at:new Date().toISOString()}).eq('id',editingChapter.id);if(error)throw error;
+ localStorage.removeItem(editorDraftKey(editingChapter.id));$('chapterEditorStatus').textContent='فصل با موفقیت ذخیره شد 💜';await loadManagerChapters();
+ }catch(e){$('chapterEditorStatus').textContent='ذخیره ناموفق بود: '+e.message;console.error(e)}finally{btn.disabled=false}
+};
+$('previewChapterEditor').onclick=()=>{const html=window.DOMPurify?DOMPurify.sanitize($('editorSurface').innerHTML):escapeHtml($('editorSurface').innerText);const w=window.open('','_blank');if(!w){alert('اجازهٔ بازشدن پنجرهٔ پیش‌نمایش را بده.');return}w.document.write(`<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><title>پیش‌نمایش فصل</title><style>body{max-width:850px;margin:35px auto;padding:20px;font:17px/2 Tahoma;background:#f5f2f8;color:#211a28}img{max-width:100%;height:auto}</style><article>${html}</article></html>`);w.document.close()};
+let avatarCropImage=null,avatarCropObjectUrl=null,avatarCropZoom=1,avatarCropOffsetX=0,avatarCropOffsetY=0,avatarCropDrag=null;
+function drawAvatarCrop(){
+ const canvas=$('avatarCropCanvas'),ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#08060d';ctx.fillRect(0,0,canvas.width,canvas.height);if(!avatarCropImage)return;
+ const base=Math.max(canvas.width/avatarCropImage.width,canvas.height/avatarCropImage.height),scale=base*avatarCropZoom,w=avatarCropImage.width*scale,h=avatarCropImage.height*scale;
+ const minX=canvas.width-w,maxX=0,minY=canvas.height-h,maxY=0;
+ avatarCropOffsetX=Math.min(maxX,Math.max(minX,avatarCropOffsetX));avatarCropOffsetY=Math.min(maxY,Math.max(minY,avatarCropOffsetY));
+ ctx.drawImage(avatarCropImage,avatarCropOffsetX,avatarCropOffsetY,w,h);
+}
+function closeAvatarCrop(){modal('avatarCropModal',false);if(avatarCropObjectUrl){URL.revokeObjectURL(avatarCropObjectUrl);avatarCropObjectUrl=null}avatarCropImage=null;avatarCropDrag=null;$('profileAvatarInput').value=''}
+$('profileAvatarInput').onchange=()=>{
+ const f=$('profileAvatarInput').files[0];if(!f)return;
+ if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){alert('تصویر پروفایل باید JPG، PNG یا WebP و حداکثر ۵ مگابایت باشد.');$('profileAvatarInput').value='';return}
+ if(avatarCropObjectUrl)URL.revokeObjectURL(avatarCropObjectUrl);avatarCropObjectUrl=URL.createObjectURL(f);avatarCropImage=new Image();
+ avatarCropImage.onload=()=>{avatarCropZoom=1;const c=$('avatarCropCanvas');const scale=Math.max(c.width/avatarCropImage.width,c.height/avatarCropImage.height);avatarCropOffsetX=(c.width-avatarCropImage.width*scale)/2;avatarCropOffsetY=(c.height-avatarCropImage.height*scale)/2;$('avatarCropZoom').value='1';drawAvatarCrop();modal('avatarCropModal',true)};
+ avatarCropImage.onerror=()=>{alert('باز کردن تصویر ممکن نشد. یک عکس دیگر انتخاب کن.');closeAvatarCrop()};avatarCropImage.src=avatarCropObjectUrl;
+};
+$('avatarCropZoom').oninput=()=>{if(!avatarCropImage)return;const old=avatarCropZoom;avatarCropZoom=Number($('avatarCropZoom').value)||1;const c=$('avatarCropCanvas'),cx=c.width/2,cy=c.height/2;avatarCropOffsetX=cx-(cx-avatarCropOffsetX)*(avatarCropZoom/old);avatarCropOffsetY=cy-(cy-avatarCropOffsetY)*(avatarCropZoom/old);drawAvatarCrop()};
+$('avatarCropCanvas').addEventListener('pointerdown',e=>{if(!avatarCropImage)return;$('avatarCropCanvas').setPointerCapture(e.pointerId);avatarCropDrag={x:e.clientX,y:e.clientY,ox:avatarCropOffsetX,oy:avatarCropOffsetY}});
+$('avatarCropCanvas').addEventListener('pointermove',e=>{if(!avatarCropDrag)return;const r=$('avatarCropCanvas').getBoundingClientRect(),sx=$('avatarCropCanvas').width/r.width,sy=$('avatarCropCanvas').height/r.height;avatarCropOffsetX=avatarCropDrag.ox+(e.clientX-avatarCropDrag.x)*sx;avatarCropOffsetY=avatarCropDrag.oy+(e.clientY-avatarCropDrag.y)*sy;drawAvatarCrop()});
+$('avatarCropCanvas').addEventListener('pointerup',()=>avatarCropDrag=null);$('avatarCropCanvas').addEventListener('pointercancel',()=>avatarCropDrag=null);
+$('resetAvatarCrop').onclick=()=>{if(!avatarCropImage)return;avatarCropZoom=1;$('avatarCropZoom').value='1';const c=$('avatarCropCanvas'),scale=Math.max(c.width/avatarCropImage.width,c.height/avatarCropImage.height);avatarCropOffsetX=(c.width-avatarCropImage.width*scale)/2;avatarCropOffsetY=(c.height-avatarCropImage.height*scale)/2;drawAvatarCrop()};
+$('cancelAvatarCrop').onclick=closeAvatarCrop;
+$('applyAvatarCrop').onclick=()=>{if(!avatarCropImage)return;const canvas=$('avatarCropCanvas');canvas.toBlob(blob=>{if(!blob){alert('ساخت تصویر برش‌خورده ناموفق بود.');return}avatarPendingFile=new File([blob],'profile-avatar.jpg',{type:'image/jpeg'});avatarRemoveRequested=false;$('profileAvatarPreview').src=URL.createObjectURL(blob);$('profileAvatarPreview').alt='پیش‌نمایش تصویر برش‌خورده پروفایل';closeAvatarCrop();showMessage('profileStatus','کادر تصویر تنظیم شد؛ برای ثبت نهایی «ذخیرهٔ پروفایل» را بزن.')},'image/jpeg',0.92)};
+$('removeProfileAvatar').onclick=()=>{avatarPendingFile=null;avatarRemoveRequested=true;$('profileAvatarInput').value='';$('profileAvatarPreview').removeAttribute('src')};
 
 /* READER + GLOBAL PREVIEW */
 function resetReaderAccess(){
@@ -1115,7 +1285,7 @@ $('readerAccessNotice').textContent='';
 modal('readerModal',true);
 
 const{data:chs,error}=await sb.from('manga_chapters')
-.select('id,title,chapter_number')
+.select('id,title,chapter_number,content_text,content_html,source_file_path,source_file_type,editor_settings,publication_status,volume_id')
 .eq('manga_id',m.id)
 .order('chapter_number');
 
@@ -1170,7 +1340,7 @@ const select=document.createElement('select');
 for(const ch of availableChapters){
 const o=document.createElement('option');
 o.value=ch.id;
-o.textContent=`فصل ${ch.chapter_number} — ${ch.title}`;
+const vol=activeVolumes.find(v=>v.id===ch.volume_id);o.textContent=`${vol?`جلد ${vol.volume_number} · `:''}فصل ${ch.chapter_number} — ${ch.title}`;
 select.append(o);
 }
 const btn=document.createElement('button');
@@ -1184,10 +1354,8 @@ await loadReaderChapter(availableChapters[0].id,availableChapters[0]);
 async function loadReaderChapter(id,ch){
 const area=$('readerContent');
 area.textContent='در حال بارگذاری صفحات...';
-const{data:pages,error}=await sb.from('manga_pages')
-.select('id,file_path,file_type,page_number')
-.eq('chapter_id',id)
-.order('page_number');
+const[{data:pages,error},{data:chapter,error:chapterError}]=await Promise.all([sb.from('manga_pages').select('id,file_path,file_type,page_number').eq('chapter_id',id),sb.from('manga_chapters').select('content_text,content_html,source_file_path,source_file_type,editor_settings').eq('id',id).maybeSingle()]);
+if(chapterError){area.textContent='خطا در دریافت متن فصل: '+chapterError.message;return}
 
 area.replaceChildren();
 if(error){area.textContent='بارگذاری صفحات ناموفق بود: '+error.message;return}
@@ -1199,17 +1367,32 @@ activeReaderPreview.allowedIds.has(p.id)&&p.file_type==='image'
 );
 }
 
-if(!visiblePages.length){
+const hasText=!activeReaderPreview&&!!(chapter&&(chapter.content_html||chapter.content_text));
+const hasSource=!activeReaderPreview&&!!chapter?.source_file_path;
+if(!visiblePages.length&&!hasText&&!hasSource){
 area.textContent=activeReaderPreview
 ?'در این فصل صفحه‌ای برای پیش‌نمایش وجود ندارد.'
-:'این فصل هنوز صفحه یا PDF ندارد.';
+:'این فصل هنوز متن یا فایلی ندارد.';
 return;
 }
 
 const h=document.createElement('h3');
 h.textContent=`فصل ${ch.chapter_number} — ${ch.title}`;
 area.append(h);
-
+if(hasText){
+ const textBox=document.createElement('article');textBox.className='reader-text';
+ const safeHtml=window.DOMPurify?DOMPurify.sanitize(chapter.content_html||''):'';
+ if(safeHtml.trim())textBox.innerHTML=safeHtml;else textBox.textContent=chapter.content_text||'';
+ const settings=chapter.editor_settings||{};if(settings.fontFamily)textBox.style.fontFamily=settings.fontFamily;if(settings.fontSize)textBox.style.fontSize=settings.fontSize+'px';
+ area.append(textBox);
+}
+if(chapter?.source_file_path && !activeReaderPreview){
+ let src=chapter.source_file_path;if(!/^https?:\/\//i.test(src))src=sb.storage.from('manga-files').getPublicUrl(src).data.publicUrl;
+ if(chapter.source_file_type==='pdf'){
+  const frame=document.createElement('iframe');frame.className='reader-pdf';frame.src=src;frame.title='فایل PDF فصل';area.append(frame);
+ }
+ const attachment=document.createElement('a');attachment.href=src;attachment.target='_blank';attachment.rel='noopener';attachment.download='';attachment.className='button secondary';attachment.textContent='دریافت فایل پیوست فصل';attachment.style.display='inline-block';attachment.style.margin='12px 0';area.append(attachment);
+}
 for(const p of visiblePages){
 let url=p.file_path;
 if(!/^https?:\/\//i.test(url))
@@ -1242,29 +1425,37 @@ area.append(img);
 
 /* PROFILES + CHAT */
 async function loadMyProfile(){
-if(!user){$('profileName').value='';$('profileBio').value='';$('profileName').disabled=true;$('profileBio').disabled=true;$('saveProfile').disabled=true;showMessage('profileStatus','برای ویرایش پروفایل ابتدا وارد حساب شو.');return}
-$('profileName').disabled=false;$('profileBio').disabled=false;$('saveProfile').disabled=false;
-const{data,error}=await sb.from('profiles').select('id,display_name,bio').eq('id',user.id).maybeSingle();
+if(!user){$('profileName').value='';$('profileBio').value='';$('profileName').disabled=true;$('profileBio').disabled=true;$('saveProfile').disabled=true;$('creatorStatus').disabled=true;$('creatorStatusMessage').disabled=true;$('profileAvatarInput').disabled=true;showMessage('profileStatus','برای ویرایش پروفایل ابتدا وارد حساب شو.');return}
+$('profileName').disabled=false;$('profileBio').disabled=false;$('saveProfile').disabled=false;$('creatorStatus').disabled=false;$('creatorStatusMessage').disabled=false;$('profileAvatarInput').disabled=false;
+const{data,error}=await sb.from('profiles').select('display_name,bio,avatar_url,creator_status,creator_status_message').eq('id',user.id).maybeSingle();
 if(error){showMessage('profileStatus','خطا در دریافت پروفایل: '+error.message);return}
-if(data){$('profileName').value=data.display_name||'';$('profileBio').value=data.bio||''}
+$('profileName').value=data?.display_name||profileFallback(user.email);$('profileBio').value=data?.bio||'';$('creatorStatus').value=data?.creator_status||'active';$('creatorStatusMessage').value=data?.creator_status_message||'';
+$('profileAvatarPreview').src=data?.avatar_url||'';$('profileAvatarPreview').alt=data?.avatar_url?'تصویر پروفایل':'بدون تصویر پروفایل';avatarPendingFile=null;avatarRemoveRequested=false;showMessage('profileStatus','');
 }
 
 async function saveMyProfile(){
 if(!user)return showMessage('profileStatus','برای ذخیرهٔ پروفایل وارد حساب شو.');
-const display_name=$('profileName').value.trim().slice(0,40),bio=$('profileBio').value.trim().slice(0,300);
+const display_name=$('profileName').value.trim().slice(0,40),bio=$('profileBio').value.trim().slice(0,300),creator_status=$('creatorStatus').value,creator_status_message=$('creatorStatusMessage').value.trim().slice(0,120);
 if(!display_name)return showMessage('profileStatus','نام نمایشی را وارد کن.');
 const b=$('saveProfile');b.disabled=true;
 try{
-const{error}=await sb.from('profiles').upsert({id:user.id,display_name,bio,updated_at:new Date().toISOString()},{onConflict:'id'});if(error)throw error;
-showMessage('profileStatus','پروفایلت ذخیره شد 💜');await loadProfiles();await loadChat();await loadMarket();
+let avatar_url=undefined;
+const{data:oldProfile}=await sb.from('profiles').select('avatar_url').eq('id',user.id).maybeSingle();
+if(avatarPendingFile){const ext=avatarPendingFile.type==='image/png'?'png':avatarPendingFile.type==='image/webp'?'webp':'jpg';const path=`${user.id}/profile/avatar-${crypto.randomUUID()}.${ext}`;avatar_url=await uploadFile(path,avatarPendingFile);}
+else if(avatarRemoveRequested)avatar_url=null;
+const payload={id:user.id,display_name,bio,creator_status,creator_status_message,updated_at:new Date().toISOString()};if(avatar_url!==undefined)payload.avatar_url=avatar_url;
+const{error}=await sb.from('profiles').upsert(payload,{onConflict:'id'});if(error)throw error;
+if((avatarPendingFile||avatarRemoveRequested)&&oldProfile?.avatar_url){const oldPath=storagePathFromUrl(oldProfile.avatar_url);if(oldPath)await removeStoragePaths([oldPath]);}
+avatarPendingFile=null;avatarRemoveRequested=false;showMessage('profileStatus','پروفایلت ذخیره شد 💜');await loadMyProfile();await loadProfiles();await loadChat();await loadMarket();
 }catch(e){showMessage('profileStatus','ذخیره ناموفق بود: '+e.message)}finally{b.disabled=false}
 }
 
 async function loadProfiles(){
-const box=$('profilesList');const{data,error}=await sb.from('profiles').select('id,display_name,bio,updated_at').order('updated_at',{ascending:false}).limit(100);
+const box=$('profilesList');const{data,error}=await sb.from('profiles').select('id,display_name,bio,avatar_url,creator_status,creator_status_message,updated_at').order('updated_at',{ascending:false}).limit(100);
 if(error){box.textContent='خطا در دریافت نویسنده‌ها: '+error.message;return}
 profileCache={};box.replaceChildren();if(!data?.length){box.textContent='هنوز پروفایلی ثبت نشده.';return}
-for(const p of data){profileCache[p.id]=p.display_name||'نویسنده';const item=document.createElement('div');item.className='profile-item';const n=document.createElement('strong');n.textContent=p.display_name||'نویسنده';const bio=document.createElement('p');bio.className='small';bio.textContent=p.bio||'هنوز توضیحی ننوشته.';item.append(n,bio);box.append(item)}
+const statusLabels={active:'فعال',busy:'مشغول',break:'استراحت موقت',inactive:'غیرفعال',returning:'بازگشته',irregular:'انتشار نامنظم'};
+for(const p of data){profileCache[p.id]=p.display_name||'نویسنده';const item=document.createElement('div');item.className='profile-item';const row=document.createElement('div');row.className='profile-avatar-row';const img=document.createElement('img');img.className='avatar-preview';img.alt='تصویر '+(p.display_name||'نویسنده');img.src=p.avatar_url||'';const details=document.createElement('div');const n=document.createElement('strong');n.textContent=p.display_name||'نویسنده';const st=document.createElement('div');st.className='small';st.textContent='وضعیت سازنده: '+(statusLabels[p.creator_status]||'فعال');details.append(n,st);row.append(img,details);const bio=document.createElement('p');bio.className='small';bio.textContent=p.bio||'هنوز توضیحی ننوشته.';item.append(row,bio);if(p.creator_status_message){const msg=document.createElement('p');msg.className='small';msg.textContent=p.creator_status_message;item.append(msg)}box.append(item)}
 }
 
 const CHAT_IMAGE_PREFIX='[[SM_IMAGE]]',CHAT_REPLY_PREFIX='[[SM_REPLY]]';
@@ -1301,11 +1492,11 @@ async function loadChat(){
 const box=$('chatMessages');const{data,error}=await sb.from('community_messages').select('id,user_id,body,created_at').order('created_at',{ascending:true}).limit(150);
 if(error){box.textContent='خطا در دریافت پیام‌ها: '+error.message;return}
 const ids=[...new Set((data||[]).map(m=>m.user_id))];
-if(ids.length){const{data:p}=await sb.from('profiles').select('id,display_name').in('id',ids);for(const x of p||[])profileCache[x.id]=x.display_name||'نویسنده'}
+if(ids.length){const{data:p}=await sb.from('profiles').select('id,display_name,avatar_url').in('id',ids);for(const x of p||[]){profileCache[x.id]=x.display_name||'نویسنده';profileAvatarCache[x.id]=x.avatar_url||''}}
 box.replaceChildren();if(!data?.length){box.textContent='هنوز پیامی نیست؛ اولین پیام رو بفرست!';return}
 for(const m of data){
 const unpacked=unwrapReplyBody(m.body),bodyText=unpacked.body,item=document.createElement('div');item.className='chat-message'+(user&&m.user_id===user.id?' mine':'');
-const meta=document.createElement('div');meta.className='chat-meta';meta.textContent=(profileCache[m.user_id]||'نویسنده')+' · '+new Date(m.created_at).toLocaleString('fa-IR');item.append(meta);
+const meta=document.createElement('div');meta.className='chat-meta';if(profileAvatarCache[m.user_id]){const avatar=document.createElement('img');avatar.className='chat-avatar';avatar.src=profileAvatarCache[m.user_id];avatar.alt='تصویر پروفایل '+(profileCache[m.user_id]||'نویسنده');meta.append(avatar)}const author=document.createElement('span');author.textContent=(profileCache[m.user_id]||'نویسنده')+' · '+new Date(m.created_at).toLocaleString('fa-IR');meta.append(author);item.append(meta);
 if(unpacked.reply){const q=document.createElement('div');q.className='chat-reply-quote';q.textContent='↪ پاسخ به '+(unpacked.reply.author||'نویسنده')+': '+(unpacked.reply.excerpt||'پیام');item.append(q)}
 if(bodyText.startsWith(CHAT_IMAGE_PREFIX)){
 const rest=bodyText.slice(CHAT_IMAGE_PREFIX.length),i=rest.indexOf('\n'),url=(i<0?rest:rest.slice(0,i)).trim(),caption=i<0?'':rest.slice(i+1).trim();
@@ -1314,7 +1505,7 @@ if(caption){const cap=document.createElement('div');cap.textContent=caption;item
 }else{const body=document.createElement('div');body.textContent=bodyText;item.append(body)}
 const actions=document.createElement('div');actions.className='chat-actions';
 const reply=document.createElement('button');reply.type='button';reply.className='button secondary';reply.textContent='↩ پاسخ';reply.onclick=()=>setChatReply(m);actions.append(reply);
-if(user&&m.user_id===user.id){const del=document.createElement('button');del.type='button';del.className='button secondary';del.textContent='حذف پیام';del.onclick=()=>deleteChatMessage(m.id,m.body);actions.append(del)}
+if(user&&m.user_id===user.id){const edit=document.createElement('button');edit.type='button';edit.className='button secondary';edit.textContent='✏️ ویرایش';edit.onclick=()=>openChatMessageEditor(m,item);actions.append(edit);const del=document.createElement('button');del.type='button';del.className='button secondary';del.textContent='حذف پیام';del.onclick=()=>deleteChatMessage(m.id,m.body);actions.append(del)}
 item.append(actions);box.append(item);
 }
 box.scrollTop=box.scrollHeight;showMessage('chatStatus','');
@@ -1335,6 +1526,41 @@ const{error}=await sb.from('community_messages').insert({user_id:user.id,body});
 $('chatInput').value='';resetChatImage();cancelChatReply();await loadChat();
 }catch(e){if(path)await removeStoragePaths([path]);showMessage('chatStatus','ارسال ناموفق بود: '+e.message)}
 finally{b.disabled=false;$('chooseChatImage').disabled=false}
+}
+
+function openChatMessageEditor(message,item){
+if(!user||message.user_id!==user.id)return;
+const unpacked=unwrapReplyBody(message.body),original=unpacked.body,isImage=original.startsWith(CHAT_IMAGE_PREFIX);
+let imageUrl='',caption=original;
+if(isImage){const rest=original.slice(CHAT_IMAGE_PREFIX.length),i=rest.indexOf('\n');imageUrl=(i<0?rest:rest.slice(0,i)).trim();caption=i<0?'':rest.slice(i+1)}
+const existing=item.querySelector('.chat-edit-box');if(existing){existing.remove();return}
+const box=document.createElement('div');box.className='chat-edit-box';
+const label=document.createElement('label');label.textContent=isImage?'توضیح عکس':'متن پیام';
+const area=document.createElement('textarea');area.maxLength=900;area.value=caption;area.placeholder=isImage?'توضیح عکس را بنویس...':'پیامت را ویرایش کن...';
+box.append(label,area);
+let fileInput=null,removeCheck=null;
+if(isImage){
+ if(imageUrl){const preview=document.createElement('img');preview.className='chat-edit-preview';preview.src=imageUrl;preview.alt='عکس فعلی پیام';box.append(preview)}
+ const fileLabel=document.createElement('label');fileLabel.textContent='جایگزینی عکس (اختیاری)';fileInput=document.createElement('input');fileInput.type='file';fileInput.accept='image/jpeg,image/png,image/webp,image/gif';box.append(fileLabel,fileInput);
+ const wrap=document.createElement('label');wrap.style.display='flex';wrap.style.alignItems='center';wrap.style.gap='8px';removeCheck=document.createElement('input');removeCheck.type='checkbox';removeCheck.style.width='auto';const t=document.createElement('span');t.textContent='حذف عکس و نگه‌داشتن فقط متن';wrap.append(removeCheck,t);box.append(wrap);
+}
+const actions=document.createElement('div');actions.className='chat-edit-actions';const save=document.createElement('button');save.type='button';save.className='button';save.textContent='ذخیرهٔ ویرایش';const cancel=document.createElement('button');cancel.type='button';cancel.className='button secondary';cancel.textContent='انصراف';actions.append(save,cancel);box.append(actions);item.append(box);area.focus();cancel.onclick=()=>box.remove();
+save.onclick=async()=>{
+ const nextCaption=area.value.trim(),file=fileInput?.files?.[0]||null;
+ if(file&&(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)||file.size>5*1024*1024)){alert('عکس باید JPG، PNG، WebP یا GIF و حداکثر ۵ مگابایت باشد.');return}
+ if(!nextCaption&&!isImage&&!file){alert('متن پیام خالی است.');return}
+ save.disabled=true;cancel.disabled=true;let newPath=null;
+ try{
+  let nextBody;
+  if(isImage&&!removeCheck.checked){let nextUrl=imageUrl;if(file){const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'}[file.type];newPath=`${user.id}/chat/${crypto.randomUUID()}.${ext}`;nextUrl=await uploadFile(newPath,file)}nextBody=CHAT_IMAGE_PREFIX+nextUrl+(nextCaption?'\n'+nextCaption:'')}
+  else nextBody=nextCaption;
+  if(unpacked.reply)nextBody=CHAT_REPLY_PREFIX+JSON.stringify(unpacked.reply)+'\n'+nextBody;
+  if(nextBody.length>1000)throw Error('متن پیام بیش از حد طولانی است.');
+  const{error}=await sb.from('community_messages').update({body:nextBody}).eq('id',message.id).eq('user_id',user.id);if(error)throw error;
+  if(isImage&&imageUrl&&(removeCheck?.checked||file)){const oldPath=storagePathFromUrl(imageUrl);if(oldPath)await removeStoragePaths([oldPath])}
+  await loadChat();
+ }catch(e){if(newPath)await removeStoragePaths([newPath]);alert('ویرایش پیام ناموفق بود: '+e.message);save.disabled=false;cancel.disabled=false}
+};
 }
 
 async function deleteChatMessage(id,raw=''){
@@ -1374,5 +1600,16 @@ await loadMangas();await loadMarket();await loadMyProfile();await loadProfiles()
 }catch(e){console.error(e);showMessage('authMessage','خطا در اتصال: '+e.message)}
 })();
 </script>
+
+<div class="modal" id="avatarCropModal" role="dialog" aria-modal="true" aria-labelledby="avatarCropTitle">
+ <div class="modal-content">
+  <div class="modal-header"><h2 id="avatarCropTitle">تنظیم کادر تصویر پروفایل</h2><button class="close" id="cancelAvatarCrop" type="button" aria-label="بستن">×</button></div>
+  <p class="small">عکس را با ماوس یا انگشت جابه‌جا کن و با نوار بزرگ‌نمایی، قسمت دلخواه را داخل دایره تنظیم کن. فقط قسمت داخل کادر ذخیره می‌شود.</p>
+  <div class="avatar-crop-stage"><canvas id="avatarCropCanvas" width="512" height="512"></canvas></div>
+  <div class="crop-controls"><label for="avatarCropZoom">بزرگ‌نمایی</label><input id="avatarCropZoom" type="range" min="1" max="3" step="0.01" value="1"></div>
+  <div class="crop-actions"><button class="button secondary" id="resetAvatarCrop" type="button">بازنشانی کادر</button><button class="button" id="applyAvatarCrop" type="button">تأیید و استفاده از این قسمت</button></div>
+ </div>
+</div>
+
 </body>
 </html>
